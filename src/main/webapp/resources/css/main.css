@@ -1,0 +1,10 @@
+body {
+    padding-top: 5rem;
+}
+
+.figure-img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
