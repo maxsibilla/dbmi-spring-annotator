@@ -2218,7 +2218,7 @@ button.jqx-button, input[type=button].jqx-button, input[type=submit].jqx-button 
     padding: 0px;
     margin: 0px;
     cursor: default;
-    overflow: hidden;
+    /*overflow: hidden;*/
 }
 /*applied to the Panel's element displayed when the horizontal and vertical scrollbars are visible and the element is positioned below the vertical scrollbar and on the right
 of the horizontal scrollbar.*/
@@ -2787,7 +2787,7 @@ of the horizontal scrollbar.*/
 
 /* jqxSplitter */
 .jqx-splitter {
-    overflow: hidden;
+    /*overflow: hidden;*/
     border: 1px solid transparent;
     position: relative;
 }
@@ -2838,7 +2838,7 @@ of the horizontal scrollbar.*/
     border: none;
     outline: none;
     position: absolute;
-    overflow: hidden;
+    /*overflow: hidden;*/
 }
 /* This class is added to a nested splitter.*/
 .jqx-splitter-nested, .jqx-splitter-panel-nested {

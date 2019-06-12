@@ -1198,6 +1198,8 @@
              $('#main-splitter').jqxSplitter('expand');
 
             $('#annotation-definition').empty();
+            $('#annotation-figure').empty();
+            $('#annotation-video').empty();
 
             $('#nested-viewer').jqxSplitter({
             height: '100%',
@@ -1207,9 +1209,10 @@
 
             // $('#new-annotator-viewer').append('<button title="Edit" class="annotator-edit">Edit</button>');
             // $('#new-annotator-viewer').append('<button title="Delete" class="annotator-delete">Delete</button>');
-            var quote = document.createElement('h5');
+
+            var quote = document.createElement('h6');
             quote.appendChild(document.createTextNode(annotations[0].quote));
-            var comment = document.createElement('h6');
+            var comment = document.createElement('div');
             comment.appendChild(document.createTextNode('Definition: ' + annotations[0].text));
             var figure = document.createElement('img');
             figure.src = annotations[0].figure;
@@ -1541,7 +1544,8 @@
                 cornerItem = this.element.find(".annotator-item:first")
             }
             if (cornerItem) {
-                $('<span class="annotator-resize"></span>').appendTo(cornerItem)
+                //Overwrite removing textarea drag
+                // $('<span class="annotator-resize"></span>').appendTo(cornerItem)
             }
             mousedown = null;
             classes = this.classes;

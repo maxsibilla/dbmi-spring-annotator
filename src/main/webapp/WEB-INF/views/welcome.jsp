@@ -10,7 +10,9 @@
 <body>
 <myTags:navbar></myTags:navbar>
 <main role="main" class="container">
-    <h2>Welcome ${pageContext.request.userPrincipal.name}</h2>
+    <div class="navbar-body">
+        <h2>Welcome ${pageContext.request.userPrincipal.name}</h2>
+    </div>
 </main>
 </body>
 </html>

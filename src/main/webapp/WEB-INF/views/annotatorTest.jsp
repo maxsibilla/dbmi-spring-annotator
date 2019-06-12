@@ -12,6 +12,7 @@
 <script src="${contextPath}/resources/js/splitter/jqxcore.js"></script>
 <script src="${contextPath}/resources/js/splitter/jqxbuttons.js"></script>
 <script src="${contextPath}/resources/js/splitter/jqxsplitter.js"></script>
+<script src="${contextPath}/resources/js/splitter/jqxpanel.js"></script>
 <script src="${contextPath}/resources/js/splitter/jqxscrollbar.js"></script>
 
 
@@ -19,7 +20,7 @@
 <myTags:navbar></myTags:navbar>
 <main id="main" role="main" class="container">
     <div id="main-splitter">
-        <div id="content" style="overflow-y: auto;">
+        <div id="content">
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
                 dolore
                 magna
@@ -139,6 +140,7 @@
             }
         });
 
+        $('#content').jqxPanel({  width: '100%', height: '100%' });
         $('#main-splitter').jqxSplitter({
             width: $('#main').width(),
             height: $(window).height() - 100,

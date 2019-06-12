@@ -1,18 +1,23 @@
 package edu.pitt.nccih.controller;
 
+import edu.pitt.nccih.GlobalConstants;
 import edu.pitt.nccih.auth.model.User;
 import edu.pitt.nccih.auth.service.UserService;
 import edu.pitt.nccih.models.Annotation;
 import edu.pitt.nccih.models.SearchResult;
 import edu.pitt.nccih.service.AnnotationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/annotation")
@@ -22,6 +27,24 @@ public class AnnotatorController {
 
     @Autowired
     private UserService userService;
+
+    static final Logger logger = LoggerFactory.getLogger(AnnotatorController.class);
+	public static final String ANNOTATOR_DIR;
+
+    static {
+		Map<String, String> env = System.getenv();
+		String annotatorDir = env.get(GlobalConstants.ANNOTATOR_FILEDIR_ENVIRONMENT_VARIABLE);
+		if (annotatorDir != null) {
+			if (!annotatorDir.endsWith(File.separator)) {
+				annotatorDir += File.separator;
+			}
+			logger.info(GlobalConstants.ANNOTATOR_FILEDIR_ENVIRONMENT_VARIABLE + " is now:" + annotatorDir);
+		} else {
+			logger.error(GlobalConstants.ANNOTATOR_FILEDIR_ENVIRONMENT_VARIABLE + "environment variable not found!");
+		}
+
+		ANNOTATOR_DIR = annotatorDir;
+	}
 
 
     @GetMapping("/annotations/{id}")
@@ -49,9 +72,11 @@ public class AnnotatorController {
             try {
                 annotationService.save(annotation);
                 response.setStatus(204);
+                return;
             } catch (Exception e) {
                 e.printStackTrace();
                 response.setStatus(500);
+                return;
             }
         }
         //access denied
@@ -83,9 +108,11 @@ public class AnnotatorController {
             try {
                 annotationService.save(oldAnnotation);
                 response.setStatus(204);
+                return;
             } catch (Exception e) {
                 e.printStackTrace();
                 response.setStatus(500);
+                return;
             }
         }
         //access denied
@@ -99,9 +126,11 @@ public class AnnotatorController {
             try {
                 annotationService.delete(Long.parseLong(id));
                 response.setStatus(204);
+                return;
             } catch (Exception e) {
                 e.printStackTrace();
                 response.setStatus(500);
+                return;
             }
         }
         //access denied
