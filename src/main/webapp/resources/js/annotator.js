@@ -859,7 +859,7 @@
             this.editor = new Annotator.Editor;
             this.editor.hide().on("hide", this.onEditorHide).on("save", this.onEditorSubmit).addField({
                 type: "textarea",
-                label: _t("Definition") + "…",
+                label: _t("Definition") + "...",
                 load: function(field, annotation) {
                     return $(field).find("textarea").val(annotation.text || "")
                 },
@@ -869,7 +869,7 @@
             });
             this.editor.hide().on("hide", this.onEditorHide).on("save", this.onEditorSubmit).addField({
                 type: "textarea",
-                label: _t("Figure") + "…",
+                label: _t("Figure") + "...",
                 load: function(field, annotation) {
                     return $(field).find("textarea").val(annotation.figure || "")
                 },
@@ -879,7 +879,7 @@
             });
             this.editor.hide().on("hide", this.onEditorHide).on("save", this.onEditorSubmit).addField({
                 type: "textarea",
-                label: _t("Video") + "…",
+                label: _t("Video") + "...",
                 load: function(field, annotation) {
                     return $(field).find("textarea").val(annotation.video || "")
                 },

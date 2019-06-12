@@ -10,22 +10,24 @@
 <myTags:imports title="Unsupported Request"/>
 
 <body>
-<div class="container-fluid">
+<div class="container">
+    <div class="navbar-body">
 
-    <div class="row">
-        <div class="col-md-12">
+        <div class="row">
+            <div class="col-md-12">
 
-            <br>
-            <a href="${pageContext.request.contextPath}/main">
-                <button type="button" class="btn btn-default">
-                    <icon class="fa fa-chevron-left"></icon>
-                    Home
-                </button>
-            </a>
-            <br>
+                <br>
+                <a href="${pageContext.request.contextPath}/main">
+                    <button type="button" class="btn btn-default">
+                        <icon class="fa fa-chevron-left"></icon>
+                        Home
+                    </button>
+                </a>
+                <br>
 
-            <h3 class="text-center">Status 400: The request is not currently supported by the Digital Commons.</h3>
+                <h3 class="text-center">Status 400: The request is not currently supported by the Digital Commons.</h3>
 
+            </div>
         </div>
     </div>
 </div>
