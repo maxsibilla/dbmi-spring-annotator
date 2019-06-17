@@ -1,5 +1,6 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="myTags" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
@@ -14,7 +15,7 @@
 <script src="${contextPath}/resources/js/splitter/jqxsplitter.js"></script>
 <script src="${contextPath}/resources/js/splitter/jqxpanel.js"></script>
 <script src="${contextPath}/resources/js/splitter/jqxscrollbar.js"></script>
-
+<script src="${contextPath}/resources/js/searchhighlight.js"></script>
 
 <body>
 <%--<myTags:navbar></myTags:navbar>--%>
@@ -64,10 +65,10 @@
             }
         });
 
-         $('#content').jqxPanel({width: '100%', height: '100%'});
+        $('#content').jqxPanel({width: '100%', height: '100%'});
         $('#main-splitter').jqxSplitter({
             width: $('#main').width(),
-            height: $(window).height()-35,
+            height: $(window).height() - 35,
             // width: '100%',
             // height: '100%',
             orientation: 'horizontal',
@@ -75,7 +76,55 @@
         });
         $('#main-splitter').jqxSplitter('collapse');
 
+
+        // testing
+<%--        <c:forEach items="${phrases}" var="phrase">--%>
+<%--            createDynamicAnnotation(${phrase}, uri);--%>
+<%--        </c:forEach>--%>
     });
+
+    function createDynamicAnnotation(searchWord, uri) {
+        // var searchWord = 'see';
+        highlightSearchTerms(searchWord, true);
+
+        // for (var i = 0; i < document.getElementsByClassName('highlighted').length; i++) {
+        var rootXPath = getXpathOfNode(document.getElementsByClassName('annotator-wrapper')[0]);
+        var xPath = getXpathOfNode(document.getElementsByClassName('highlighted')[0]);
+        xPath = xPath.replace(rootXPath, '').replace('/FONT', '').toLowerCase();
+
+        var parentElement = document.getElementsByClassName('highlighted')[0].parentElement;
+        var startOffset = parentElement.innerText.indexOf(searchWord);
+        var endOffset = startOffset + searchWord.length;
+
+        var annotation = {};
+        var range = {};
+
+        annotation.quote = searchWord;
+        annotation.text = "definition placeholder";
+        annotation.uri = uri;
+
+        range.start = xPath;
+        range.end = xPath;
+        range.startOffset = startOffset;
+        range.endOffset = endOffset;
+        annotation.range = range;
+
+        $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            url: "${contextPath}/annotation/newAnnotation",
+            data: JSON.stringify(annotation),
+            dataType: 'json',
+            timeout: 600000,
+            success: function (data) {
+
+            },
+            error: function (e) {
+
+            }
+        });
+        // }
+    }
 
 
     function getUrlParameter(name, url) {

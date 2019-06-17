@@ -29,22 +29,22 @@ public class AnnotatorController {
     private UserService userService;
 
     static final Logger logger = LoggerFactory.getLogger(AnnotatorController.class);
-	public static final String ANNOTATOR_DIR;
+    public static final String ANNOTATOR_DIR;
 
     static {
-		Map<String, String> env = System.getenv();
-		String annotatorDir = env.get(GlobalConstants.ANNOTATOR_FILEDIR_ENVIRONMENT_VARIABLE);
-		if (annotatorDir != null) {
-			if (!annotatorDir.endsWith(File.separator)) {
-				annotatorDir += File.separator;
-			}
-			logger.info(GlobalConstants.ANNOTATOR_FILEDIR_ENVIRONMENT_VARIABLE + " is now:" + annotatorDir);
-		} else {
-			logger.error(GlobalConstants.ANNOTATOR_FILEDIR_ENVIRONMENT_VARIABLE + "environment variable not found!");
-		}
+        Map<String, String> env = System.getenv();
+        String annotatorDir = env.get(GlobalConstants.ANNOTATOR_FILEDIR_ENVIRONMENT_VARIABLE);
+        if (annotatorDir != null) {
+            if (!annotatorDir.endsWith(File.separator)) {
+                annotatorDir += File.separator;
+            }
+            logger.info(GlobalConstants.ANNOTATOR_FILEDIR_ENVIRONMENT_VARIABLE + " is now:" + annotatorDir);
+        } else {
+            logger.error(GlobalConstants.ANNOTATOR_FILEDIR_ENVIRONMENT_VARIABLE + "environment variable not found!");
+        }
 
-		ANNOTATOR_DIR = annotatorDir;
-	}
+        ANNOTATOR_DIR = annotatorDir;
+    }
 
 
     @GetMapping("/annotations/{id}")
@@ -56,6 +56,32 @@ public class AnnotatorController {
     @RequestMapping(value = "/annotations", method = RequestMethod.DELETE)
     public void delete(HttpServletResponse response) {
         response.setStatus(204);
+    }
+
+    @RequestMapping(value = "/newAnnotation", method = RequestMethod.POST)
+    @ResponseBody
+    public void createProgrammatically(@RequestBody Annotation annotation, HttpSession session, HttpServletResponse response) {
+        if (Interceptor.ifLoggedIn(session)) {
+            User user = userService.findByUsername(session.getAttribute("username").toString());
+
+            if (annotation.getId() == null) {
+                LocalDateTime localDateTime = LocalDateTime.now();
+                annotation.setCreated(localDateTime);
+                annotation.setUpdated(localDateTime);
+                annotation.setUser(user);
+            }
+            try {
+                annotationService.save(annotation);
+                response.setStatus(204);
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+                response.setStatus(500);
+                return;
+            }
+        }
+//        access denied
+        response.setStatus(401);
     }
 
     @RequestMapping(value = "/annotations", method = RequestMethod.POST)
