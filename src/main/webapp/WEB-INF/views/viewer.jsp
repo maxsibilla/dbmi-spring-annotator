@@ -78,12 +78,13 @@
 
 
         // testing
-<%--        <c:forEach items="${phrases}" var="phrase">--%>
-<%--            createDynamicAnnotation(${phrase}, uri);--%>
+<%--        <c:forEach items="${phrases}" var="entry">--%>
+<%--            createDynamicAnnotation("${entry.key}", "${entry.value}", uri);--%>
 <%--        </c:forEach>--%>
+
     });
 
-    function createDynamicAnnotation(searchWord, uri) {
+    function createDynamicAnnotation(searchWord, cui, uri) {
         // var searchWord = 'see';
         highlightSearchTerms(searchWord, true);
 
@@ -100,7 +101,7 @@
         var range = {};
 
         annotation.quote = searchWord;
-        annotation.text = "definition placeholder";
+        annotation.text = cui;
         annotation.uri = uri;
 
         range.start = xPath;
@@ -115,6 +116,7 @@
             url: "${contextPath}/annotation/newAnnotation",
             data: JSON.stringify(annotation),
             dataType: 'json',
+            async: false,
             timeout: 600000,
             success: function (data) {
 
