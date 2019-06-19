@@ -30,7 +30,6 @@ public class AnnotatorController {
 
     static final Logger logger = LoggerFactory.getLogger(AnnotatorController.class);
     public static final String ANNOTATOR_DIR;
-    private static Map<String, String> definitions;
 
     static {
         Map<String, String> env = System.getenv();
@@ -63,9 +62,6 @@ public class AnnotatorController {
     @ResponseBody
     public void createProgrammatically(@RequestBody Annotation annotation, HttpSession session, HttpServletResponse response) {
         if (Interceptor.ifLoggedIn(session)) {
-            if(definitions == null) {
-                definitions = new HomeController().deserializeDefinitions();
-            }
             User user = userService.findByUsername(session.getAttribute("username").toString());
 
             if (annotation.getId() == null) {

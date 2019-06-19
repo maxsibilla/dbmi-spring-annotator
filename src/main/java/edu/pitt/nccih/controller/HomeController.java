@@ -21,6 +21,8 @@ import static edu.pitt.nccih.controller.AnnotatorController.ANNOTATOR_DIR;
 
 @Controller
 public class HomeController {
+    private static Map<String, String> definitions;
+
     @Autowired
     private FileService fileService;
 
@@ -55,9 +57,15 @@ public class HomeController {
     }
 
     private void createPreAnnotations(Map<String, String> phrases) throws IOException {
+        if (definitions == null) {
+            definitions = deserializeDefinitions();
+        }
         List<String> acceptedSemanticTypes = new ArrayList<>();
         buildAcceptedSemanticTypesList(acceptedSemanticTypes);
         getPhrasesFromJson(phrases, acceptedSemanticTypes);
+
+//        phrases.put("FOP", "fop definition");
+//        phrases.put("Stoneman disease", "weird disease");
 
     }
 
@@ -94,7 +102,7 @@ public class HomeController {
                                 }.getType();
                                 String phraseText = new Gson().fromJson(matchedWords.toString(), type).toString().replaceAll("\\[|\\]|,|\\s", " ").trim();
 
-                                phrases.put(phraseText, cui);
+                                phrases.put(phraseText, definitions.get(cui));
                                 continue;
                             }
                         }
@@ -106,7 +114,7 @@ public class HomeController {
 
     private void serializeDefinitions() {
         Map<String, String> map = new HashMap<>();
-        String csvFile = "/Users/mas400/select_CUI__STR_from_MRCONSO.csv";
+        String csvFile = "/Users/mas400/dev/annotator-file-dir/select_CUI__DEF_from_MRDEF.csv";
         BufferedReader br = null;
         String line = "";
         String cvsSplitBy = ",";
@@ -117,8 +125,8 @@ public class HomeController {
             while ((line = br.readLine()) != null) {
 
                 // use comma as separator
-                String[] definition = line.split(cvsSplitBy);
-                map.put(definition[0], definition[1]);
+                String[] definition = line.split(cvsSplitBy, 2);
+                map.put(definition[0], definition[1].replace("\"", "").replace("<p>", "").replace("</p>", ""));
 
             }
 
