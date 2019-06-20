@@ -78,57 +78,66 @@
 
 
         // testing
-        <c:forEach items="${phrases}" var="entry">
-        createDynamicAnnotation("${entry.key}", "${entry.value}", uri);
-        </c:forEach>
+<%--        <c:forEach items="${phrases}" var="entry">--%>
+<%--        createDynamicAnnotation("${entry.key}", "${entry.value}", uri);--%>
+<%--        </c:forEach>--%>
 
     });
 
     function createDynamicAnnotation(searchWord, definition, uri) {
-        // var searchWord = 'see';
+        // clear previous search
+        console.log("Searching for..." + searchWord);
+        var allElements = Array.from(document.querySelectorAll('.highlighted'))
+        allElements.forEach(function (element) {
+            element.classList.remove('highlighted')
+        });
         highlightSearchTerms(searchWord, true);
 
         for (var i = 0; i < 2; i++) {
             // for (var i = 0; i < document.getElementsByClassName('highlighted').length; i++) {
 
             (function (i) {
-                var rootXPath = getXpathOfNode(document.getElementsByClassName('annotator-wrapper')[0]);
-                var xPath = getXpathOfNode(document.getElementsByClassName('highlighted')[i]);
-                xPath = xPath.replace(rootXPath, '').replace('/FONT', '').toLowerCase();
-                xPath = xPath.replace('tbody', 'tbody[1]').replace('td', 'td[1]');
+                //for testing
+                if (document.getElementsByClassName('highlighted')[i] != undefined) {
 
-                var parentElement = document.getElementsByClassName('highlighted')[i].parentElement;
-                var startOffset = parentElement.innerText.indexOf(searchWord);
-                var endOffset = startOffset + searchWord.length;
+                    var rootXPath = getXpathOfNode(document.getElementsByClassName('annotator-wrapper')[0]);
+                    var xPath = getXpathOfNode(document.getElementsByClassName('highlighted')[i]);
+                    xPath = xPath.replace(rootXPath, '').replace('/FONT', '').toLowerCase();
+                    xPath = xPath.replace('tbody', 'tbody[1]').replace('td', 'td[1]');
 
-                var annotation = {};
-                var range = {};
+                    var parentElement = document.getElementsByClassName('highlighted')[i].parentElement;
+                    var startOffset = parentElement.innerText.indexOf(searchWord);
+                    var endOffset = startOffset + searchWord.length;
 
-                annotation.quote = searchWord;
-                annotation.text = definition;
-                annotation.uri = uri;
+                    var annotation = {};
+                    var range = {};
 
-                range.start = xPath;
-                range.end = xPath;
-                range.startOffset = startOffset;
-                range.endOffset = endOffset;
-                annotation.range = range;
+                    annotation.quote = searchWord;
+                    annotation.text = definition;
+                    annotation.uri = uri;
 
-                $.ajax({
-                    type: "POST",
-                    contentType: "application/json",
-                    url: "${contextPath}/annotation/newAnnotation",
-                    data: JSON.stringify(annotation),
-                    dataType: 'json',
-                    async: false,
-                    timeout: 600000,
-                    success: function (data) {
+                    range.start = xPath;
+                    range.end = xPath;
+                    range.startOffset = startOffset;
+                    range.endOffset = endOffset;
+                    annotation.range = range;
 
-                    },
-                    error: function (e) {
+                    $.ajax({
+                        type: "POST",
+                        contentType: "application/json",
+                        url: "${contextPath}/annotation/newAnnotation",
+                        data: JSON.stringify(annotation),
+                        dataType: 'json',
+                        async: false,
+                        timeout: 600000,
+                        success: function (data) {
 
-                    }
-                });
+                        },
+                        error: function (e) {
+
+                        }
+                    });
+                }
             })(i);
         }
     }

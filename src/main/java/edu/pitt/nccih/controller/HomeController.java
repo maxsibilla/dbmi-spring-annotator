@@ -100,7 +100,7 @@ public class HomeController {
                                 JsonArray matchedWords = mappingCandidate.getAsJsonObject().get("MatchedWords").getAsJsonArray();
                                 Type type = new TypeToken<List<String>>() {
                                 }.getType();
-                                String phraseText = new Gson().fromJson(matchedWords.toString(), type).toString().replaceAll("\\[|\\]|,|\\s", " ").trim();
+                                String phraseText = new Gson().fromJson(matchedWords.toString(), type).toString().replaceAll("\\[|\\]|\\s", "").replace(",", " ").trim();
 
                                 phrases.put(phraseText, definitions.get(cui));
                                 continue;
