@@ -87,7 +87,7 @@ public class HomeController {
     }
 
     private void getPhrasesFromJson(Map<String, String> phrases, List<String> acceptedSemanticTypes, List<String[]> reportData) throws IOException {
-        String json = new String(Files.readAllBytes(Paths.get(ANNOTATOR_DIR + "PhenotypeJson.json")));
+        String json = new String(Files.readAllBytes(Paths.get(ANNOTATOR_DIR + "FibrodysplasiaJson.json")));
         JsonObject jsonObject = new JsonParser().parse(json).getAsJsonObject();
         JsonArray utterances = jsonObject.get("AllDocuments").getAsJsonArray().get(0).getAsJsonObject().get("Document").getAsJsonObject().get("Utterances").getAsJsonArray();
 
