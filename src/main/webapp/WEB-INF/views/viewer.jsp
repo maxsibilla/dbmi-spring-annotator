@@ -30,9 +30,22 @@
 
             </div>
             <div id="nested-viewer">
-                <div id="annotation-figure">
+                <div id="carouselControls" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" id="annotation-figure">
 
+                    </div>
+                    <a class="carousel-control-prev" href="#carouselControls" role="button"
+                       data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#carouselControls" role="button"
+                       data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
                 </div>
+
                 <div id="annotation-video">
 
                 </div>
@@ -78,9 +91,11 @@
 
 
         // testing
-<%--        <c:forEach items="${phrases}" var="entry">--%>
-<%--        createDynamicAnnotation("${entry.key}", "${entry.value}", uri);--%>
-<%--        </c:forEach>--%>
+        <c:if test="${addPreAnnotation}">
+        <c:forEach items="${phrases}" var="entry">
+        createDynamicAnnotation("${entry.key}", "${entry.value}", uri);
+        </c:forEach>
+        </c:if>
 
     });
 
@@ -93,51 +108,47 @@
         });
         highlightSearchTerms(searchWord, true);
 
-        for (var i = 0; i < 2; i++) {
-            // for (var i = 0; i < document.getElementsByClassName('highlighted').length; i++) {
-
+        for (var i = 0; i < document.getElementsByClassName('highlighted').length; i++) {
             (function (i) {
-                //for testing
-                if (document.getElementsByClassName('highlighted')[i] != undefined) {
+                var element = document.getElementsByClassName('highlighted')[i];
 
-                    var rootXPath = getXpathOfNode(document.getElementsByClassName('annotator-wrapper')[0]);
-                    var xPath = getXpathOfNode(document.getElementsByClassName('highlighted')[i]);
-                    xPath = xPath.replace(rootXPath, '').replace('/FONT', '').toLowerCase();
-                    xPath = xPath.replace('tbody', 'tbody[1]').replace('td', 'td[1]');
+                var rootXPath = getXpathOfNode(document.getElementsByClassName('annotator-wrapper')[0]);
+                var xPath = getXpathOfNode(element);
+                xPath = xPath.replace(rootXPath, '').replace('/FONT', '').toLowerCase();
+                xPath = xPath.replace('tbody', 'tbody[1]').replace('td', 'td[1]');
+                xPath = xPath.replace(/]\[.*?\]/g, ']')
 
-                    var parentElement = document.getElementsByClassName('highlighted')[i].parentElement;
-                    var startOffset = parentElement.innerText.indexOf(searchWord);
-                    var endOffset = startOffset + searchWord.length;
+                var parentElement = element.parentElement;
+                var startOffset = parentElement.textContent.indexOf(searchWord);
+                var endOffset = startOffset + searchWord.length;
 
-                    var annotation = {};
-                    var range = {};
+                var annotation = {};
+                var range = {};
 
-                    annotation.quote = searchWord;
-                    annotation.text = definition;
-                    annotation.uri = uri;
+                annotation.quote = searchWord;
+                annotation.text = definition;
+                annotation.uri = uri;
+                annotation.wordType = "scientific";
+                range.start = xPath;
+                range.end = xPath;
+                range.startOffset = startOffset;
+                range.endOffset = endOffset;
+                annotation.range = range;
 
-                    range.start = xPath;
-                    range.end = xPath;
-                    range.startOffset = startOffset;
-                    range.endOffset = endOffset;
-                    annotation.range = range;
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json",
+                    url: "${contextPath}/annotation/newAnnotation",
+                    data: JSON.stringify(annotation),
+                    dataType: 'json',
+                    timeout: 600000,
+                    success: function (data) {
 
-                    $.ajax({
-                        type: "POST",
-                        contentType: "application/json",
-                        url: "${contextPath}/annotation/newAnnotation",
-                        data: JSON.stringify(annotation),
-                        dataType: 'json',
-                        async: false,
-                        timeout: 600000,
-                        success: function (data) {
+                    },
+                    error: function (e) {
 
-                        },
-                        error: function (e) {
-
-                        }
-                    });
-                }
+                    }
+                });
             })(i);
         }
     }

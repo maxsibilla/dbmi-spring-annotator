@@ -16,6 +16,10 @@ public class Annotation {
 
     private LocalDateTime updated;
 
+    private String wordType;
+
+    private String wordDifficulty;
+
     @Column(length = 200000)
     private String text;
 
@@ -68,6 +72,22 @@ public class Annotation {
 
     public void setUpdated(LocalDateTime updated) {
         this.updated = updated;
+    }
+
+    public String getWordType() {
+        return wordType;
+    }
+
+    public void setWordType(String wordType) {
+        this.wordType = wordType;
+    }
+
+    public String getWordDifficulty() {
+        return wordDifficulty;
+    }
+
+    public void setWordDifficulty(String wordDifficulty) {
+        this.wordDifficulty = wordDifficulty;
     }
 
     public String getText() {

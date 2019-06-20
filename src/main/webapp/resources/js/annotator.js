@@ -1207,24 +1207,52 @@
             panels: [{size: '50%'}, {size: '50%'}]
         });
 
-            // $('#new-annotator-viewer').append('<button title="Edit" class="annotator-edit">Edit</button>');
-            // $('#new-annotator-viewer').append('<button title="Delete" class="annotator-delete">Delete</button>');
-
             var quote = document.createElement('h6');
             quote.appendChild(document.createTextNode(annotations[0].quote));
             var comment = document.createElement('div');
             comment.appendChild(document.createTextNode('Definition: ' + annotations[0].text));
-            var figure = document.createElement('img');
-            figure.src = annotations[0].figure;
-            figure.classList.add('figure-img')
-            var video = document.createElement('iframe');
-            video.src = annotations[0].video;
-            video.classList.add('figure-img')
-           $('#annotation-definition').append(quote);
-           $('#annotation-definition').append(comment);
-           $('#annotation-figure').append(figure);
-           $('#annotation-video').append(video);
+            $('#annotation-definition').append(quote);
+            $('#annotation-definition').append(comment);
 
+            try {
+                var figures = annotations[0].figure.split(",");
+                if (figures) {
+                    for (var i = 0; i < figures.length; i++) {
+                        var carouselItem = document.createElement("div");
+                        carouselItem.classList.add('carousel-item');
+                        if (i == 0) {
+                            carouselItem.classList.add('active');
+                        }
+                        var figure = document.createElement('img');
+                        figure.src = "resources/figure/" + figures[i];
+                        figure.classList.add('d-block');
+                        carouselItem.appendChild(figure);
+                        $('#annotation-figure').append(carouselItem);
+                    }
+                }
+            } catch (e) {
+            }
+
+            try {
+                var videoComponents = annotations[0].video.split(",");
+                if (videoComponents) {
+                    var video = document.createElement('video');
+                    video.controls = "controls";
+                    video.width = "320";
+                    video.height = "240";
+                    var source = document.createElement("source");
+                    source.src = "resources/video/" + videoComponents[0];
+                    var track = document.createElement('track');
+                    track.src = "resources/video/" + videoComponents[1];
+                    track.kind = "subtitles";
+                    track.srclang = "en";
+                    track.label = "English";
+                    video.appendChild(source);
+                    video.appendChild(track);
+                    video.classList.add('figure-img');
+                    $('#annotation-video').append(video);
+                }
+            } catch (e) {}
 
             // return this.showViewer(annotations, Util.mousePosition(event, this.wrapper[0]))
         };

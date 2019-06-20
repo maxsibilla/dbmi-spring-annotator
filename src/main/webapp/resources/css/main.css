@@ -12,9 +12,21 @@ body {
     width: auto;
     height: auto;
     position: absolute;
-    top: 0;
-    bottom: 0;
+    /*top: 0;*/
+    /*bottom: 0;*/
     left: 0;
     right: 0;
     margin: auto;
+}
+
+.carousel-inner > .carousel-item > img {
+    margin: 0 auto;
+}
+
+.carousel-control-next {
+    filter: invert(100%);
+}
+
+.carousel-control-prev {
+    filter: invert(100%);
 }
