@@ -1,4 +1,5 @@
 <%@ attribute name="title" required="false" type="java.lang.String" %>
+<%@attribute name="wantJQXPanel" required="false" type="java.lang.String" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
@@ -13,7 +14,15 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="${contextPath}/resources/js/bootstrap/bootstrap.min.js"></script>
-        <script src="${contextPath}/resources/js/annotator.js"></script>
+    <script src="${contextPath}/resources/js/annotator.js"></script>
 
-<%--    <script src="${contextPath}/resources/js/annotatorfull.min.js"></script>--%>
+    <c:if test="${wantJQXPanel}">
+        <style>
+            html, body {
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+        </style>
+    </c:if>
 </head>

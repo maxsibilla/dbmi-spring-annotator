@@ -1243,6 +1243,7 @@
                     var source = document.createElement("source");
                     source.src = "resources/video/" + videoComponents[0];
                     var track = document.createElement('track');
+                    track.default="default";
                     track.src = "resources/video/" + videoComponents[1];
                     track.kind = "subtitles";
                     track.srclang = "en";
