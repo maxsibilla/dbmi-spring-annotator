@@ -10,13 +10,14 @@
 <myTags:imports title="${uri}"/>
 <link href="${contextPath}/resources/css/auth.css" rel="stylesheet">
 <link href="${contextPath}/resources/css/jqx.base.css" rel="stylesheet">
+<link href="${contextPath}/resources/css/tags-annotator.css" rel="stylesheet">
 <script src="${contextPath}/resources/js/splitter/jqxcore.js"></script>
 <script src="${contextPath}/resources/js/splitter/jqxbuttons.js"></script>
 <script src="${contextPath}/resources/js/splitter/jqxsplitter.js"></script>
 <script src="${contextPath}/resources/js/splitter/jqxpanel.js"></script>
 <script src="${contextPath}/resources/js/splitter/jqxscrollbar.js"></script>
 <script src="${contextPath}/resources/js/searchhighlight.js"></script>
-
+<script src="${contextPath}/resources/js/tags-annotator.js"></script>
 <body>
 <%--<myTags:navbar></myTags:navbar>--%>
 <main id="main" role="main" class="container-fluid">
@@ -61,6 +62,11 @@
         if (uri == null || uri == undefined) {
             uri = 'default';
         }
+
+        var optiontags = {
+            tag: "scientific:yellow,english:blue"
+        };
+
         //enable basic annotator functionality
         var annotator = $('#content').annotator();
 
@@ -76,7 +82,7 @@
                 'uri': uri,
                 'timestamp': new Date().getTime()
             }
-        });
+        }).annotator('addPlugin', 'HighlightTags', optiontags);
 
         $('#content').jqxPanel({width: '100%', height: '100%'});
         $('#main-splitter').jqxSplitter({
