@@ -7,7 +7,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<myTags:imports title="${uri}"/>
+<myTags:imports title="${uri}" wantJQXPanel="${true}"/>
 <link href="${contextPath}/resources/css/auth.css" rel="stylesheet">
 <link href="${contextPath}/resources/css/jqx.base.css" rel="stylesheet">
 <link href="${contextPath}/resources/css/tags-annotator.css" rel="stylesheet">
@@ -20,41 +20,38 @@
 <script src="${contextPath}/resources/js/tags-annotator.js"></script>
 <body>
 <%--<myTags:navbar></myTags:navbar>--%>
-<main id="main" role="main" class="container-fluid">
-    <div id="main-splitter">
-        <div id="content">
-            <c:out value="${fileContents}" escapeXml="false"/>
+<div id="main-splitter" class="main-splitter">
+    <div id="content">
+        <c:out value="${fileContents}" escapeXml="false"/>
+
+    </div>
+    <div id="new-annotator-viewer">
+        <div id="annotation-definition">
 
         </div>
-        <div id="new-annotator-viewer">
-            <div id="annotation-definition">
+        <div id="nested-viewer">
+            <div id="carouselControls" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner" id="annotation-figure">
 
+                </div>
+                <a class="carousel-control-prev" href="#carouselControls" role="button"
+                   data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselControls" role="button"
+                   data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
             </div>
-            <div id="nested-viewer">
-                <div id="carouselControls" class="carousel slide" data-ride="carousel">
-                    <div class="carousel-inner" id="annotation-figure">
 
-                    </div>
-                    <a class="carousel-control-prev" href="#carouselControls" role="button"
-                       data-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                    <a class="carousel-control-next" href="#carouselControls" role="button"
-                       data-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Next</span>
-                    </a>
-                </div>
+            <div id="annotation-video">
 
-                <div id="annotation-video">
-
-                </div>
             </div>
         </div>
     </div>
-
-</main>
+</div>
 
 <script>
     $(document).ready(function () {
@@ -86,10 +83,8 @@
 
         $('#content').jqxPanel({width: '100%', height: '100%'});
         $('#main-splitter').jqxSplitter({
-            width: $('#main').width(),
-            height: $(window).height() - 35,
-            // width: '100%',
-            // height: '100%',
+            width: '100%',
+            height: '100%',
             orientation: 'horizontal',
             panels: [{size: '66%', collapsible: false}, {size: '34%', collapsible: true}]
         });
