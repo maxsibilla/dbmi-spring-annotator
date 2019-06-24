@@ -2,6 +2,8 @@ package edu.pitt.nccih.controller;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 import edu.pitt.nccih.models.EnglishPhrase;
 import edu.pitt.nccih.models.File;
 import edu.pitt.nccih.service.FileService;
@@ -15,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.lang.reflect.Type;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -56,7 +57,7 @@ public class HomeController {
             String contents = "";
             if (FilenameUtils.getExtension(file.getUrl()).equals("html")) {
                 model.addAttribute("contentIsFile", true);
-                contents = new String(Files.readAllBytes(Paths.get(ANNOTATOR_DIR + "html/" + file.getUrl())));
+                contents = Files.toString(new java.io.File(ANNOTATOR_DIR + "html/" + file.getUrl()), Charsets.UTF_8);
             }
             if (FilenameUtils.getExtension(file.getUrl()).equals("mp4")) {
                 model.addAttribute("contentIsVideo", true);
@@ -100,7 +101,7 @@ public class HomeController {
     }
 
     private void getPhrasesFromJson(Map<String, String> phrases, List<String> acceptedSemanticTypes, List<String[]> reportData) throws IOException {
-        String json = new String(Files.readAllBytes(Paths.get(ANNOTATOR_DIR + "FibrodysplasiaJson.json")));
+        String json = new String(java.nio.file.Files.readAllBytes(Paths.get(ANNOTATOR_DIR + "FibrodysplasiaJson.json")));
         JsonObject jsonObject = new JsonParser().parse(json).getAsJsonObject();
         JsonArray utterances = jsonObject.get("AllDocuments").getAsJsonArray().get(0).getAsJsonObject().get("Document").getAsJsonObject().get("Utterances").getAsJsonArray();
 
