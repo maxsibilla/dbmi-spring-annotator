@@ -22,7 +22,21 @@
 <%--<myTags:navbar></myTags:navbar>--%>
 <div id="main-splitter" class="main-splitter">
     <div id="content">
-        <c:out value="${fileContents}" escapeXml="false"/>
+        <c:if test="${contentIsFile}">
+            <c:out value="${fileContents}" escapeXml="false"/>
+        </c:if>
+
+        <c:if test="${contentIsVideo}">
+            <video controls src="resources/video/${fileContents}" class="video-player" id="main-video">
+                <track default src="resources/video/${subtitles}" label="English subtitles" kind="subtitles"
+                       srclang="en"></track>
+            </video>
+
+            <br>
+            <h4 id="my-subtitle-display" class="subtitles">
+
+            </h4>
+        </c:if>
 
     </div>
     <div id="new-annotator-viewer">
@@ -54,32 +68,22 @@
 </div>
 
 <script>
+    var annotator;
     $(document).ready(function () {
         var uri = getUrlParameter('uri', document.location.href);
         if (uri == null || uri == undefined) {
             uri = 'default';
         }
+        createAnnotator();
 
-        var optiontags = {
-            tag: "scientific:yellow,english:blue"
-        };
+        <c:if test="${contentIsVideo}">
+        document.getElementById('main-video').textTracks[0].addEventListener('cuechange', function () {
+            document.getElementById('my-subtitle-display').innerText = this.activeCues[0].text;
+            annotator.annotator('destroy');
+            createAnnotator(uri + this.activeCues[0].startTime);
+        });
+        </c:if>
 
-        //enable basic annotator functionality
-        var annotator = $('#content').annotator();
-
-        //enable ability to save annotations
-        annotator.annotator('addPlugin', 'Store', {
-            prefix: '${contextPath}/annotation',
-            annotationData: {
-                'uri': uri,
-                'timestamp': new Date().getTime()
-            },
-            loadFromSearch: {
-                'limit': 100,
-                'uri': uri,
-                'timestamp': new Date().getTime()
-            }
-        }).annotator('addPlugin', 'HighlightTags', optiontags);
 
         $('#content').jqxPanel({width: '100%', height: '100%'});
         $('#main-splitter').jqxSplitter({
@@ -99,6 +103,35 @@
         </c:if>
 
     });
+
+    function createAnnotator(uri) {
+        var optiontags = {
+            tag: "scientific:yellow,english:blue"
+        };
+
+        //enable basic annotator functionality
+        <c:choose>
+            <c:when test="${contentIsFile}">
+                annotator = $('#content').annotator();
+            </c:when>
+            <c:otherwise>
+                annotator = $('#my-subtitle-display').annotator();
+            </c:otherwise>
+        </c:choose>
+         //enable ability to save annotations
+        annotator.annotator('addPlugin', 'Store', {
+            prefix: '${contextPath}/annotation',
+            annotationData: {
+                'uri': uri,
+                'timestamp': new Date().getTime()
+            },
+            loadFromSearch: {
+                'limit': 100,
+                'uri': uri,
+                'timestamp': new Date().getTime()
+            }
+        }).annotator('addPlugin', 'HighlightTags', optiontags);
+    }
 
     function createDynamicAnnotation(searchWord, definition, uri) {
         // clear previous search

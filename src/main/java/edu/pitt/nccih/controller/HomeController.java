@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import edu.pitt.nccih.models.EnglishPhrase;
 import edu.pitt.nccih.models.File;
 import edu.pitt.nccih.service.FileService;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -50,7 +51,19 @@ public class HomeController {
 
             //load html file into page
             File file = fileService.findByUri(uri);
-            String contents = new String(Files.readAllBytes(Paths.get(ANNOTATOR_DIR + "html/" + file.getUrl())));
+
+            //check what the type of file is
+            String contents = "";
+            if (FilenameUtils.getExtension(file.getUrl()).equals("html")) {
+                model.addAttribute("contentIsFile", true);
+                contents = new String(Files.readAllBytes(Paths.get(ANNOTATOR_DIR + "html/" + file.getUrl())));
+            }
+            if (FilenameUtils.getExtension(file.getUrl()).equals("mp4")) {
+                model.addAttribute("contentIsVideo", true);
+                model.addAttribute("subtitles", FilenameUtils.getBaseName(file.getUrl()) + ".vtt");
+                contents = file.getUrl();
+            }
+
 
             model.addAttribute("addPreAnnotation", false);
             model.addAttribute("phrases", phrases);
@@ -71,7 +84,7 @@ public class HomeController {
         }
         List<String> acceptedSemanticTypes = new ArrayList<>();
         List<String[]> reportData = new ArrayList<>();
-        reportData.add(new String[] {"Word", "Definition", "CUI", "Semantic Type", "Terminology"});
+        reportData.add(new String[]{"Word", "Definition", "CUI", "Semantic Type", "Terminology"});
 
         buildAcceptedSemanticTypesList(acceptedSemanticTypes);
         getPhrasesFromJson(phrases, acceptedSemanticTypes, reportData);
@@ -111,8 +124,8 @@ public class HomeController {
                                 }.getType();
                                 String phraseText = new Gson().fromJson(matchedWords.toString(), type).toString().replaceAll("\\[|\\]|\\s", "").replace(",", " ").trim();
 
-                                if(definitions.containsKey(cui)) {
-                                    if(!phrases.containsKey(phraseText)) {
+                                if (definitions.containsKey(cui)) {
+                                    if (!phrases.containsKey(phraseText)) {
                                         phrases.put(phraseText, definitions.get(cui));
                                         reportData.add(new String[]{phraseText, definitions.get(cui), cui, semElement.toString().replace("\"", ""), mappingCandidate.getAsJsonObject().get("Sources").getAsJsonArray().toString()});
                                     }

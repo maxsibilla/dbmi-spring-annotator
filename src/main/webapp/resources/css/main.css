@@ -36,3 +36,17 @@ body {
     height: 100%;
     overflow: hidden;
 }
+
+.video-player {
+    margin-left: auto;
+    margin-right: auto;
+    display: block
+}
+
+.subtitles {
+    margin: auto;
+    width: 50%;
+    border: 3px solid black;
+    padding: 10px;
+    text-align: center;
+}

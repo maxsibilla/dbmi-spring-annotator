@@ -1214,6 +1214,7 @@
             $('#annotation-definition').append(quote);
             $('#annotation-definition').append(comment);
 
+            //Load figures
             try {
                 var figures = annotations[0].figure.split(",");
                 if (figures) {
@@ -1233,6 +1234,7 @@
             } catch (e) {
             }
 
+            //Load video with subtitles
             try {
                 var videoComponents = annotations[0].video.split(",");
                 if (videoComponents) {
