@@ -1225,7 +1225,7 @@
                             carouselItem.classList.add('active');
                         }
                         var figure = document.createElement('img');
-                        figure.src = "resources/figure/" + figures[i];
+                        figure.src = "/annotator-file-dir/figure/" + figures[i];
                         figure.classList.add('d-block');
                         carouselItem.appendChild(figure);
                         $('#annotation-figure').append(carouselItem);
@@ -1243,10 +1243,10 @@
                     video.width = "320";
                     video.height = "240";
                     var source = document.createElement("source");
-                    source.src = "resources/video/" + videoComponents[0];
+                    source.src = "/annotator-file-dir/videos/" + videoComponents[0];
                     var track = document.createElement('track');
                     track.default="default";
-                    track.src = "resources/video/" + videoComponents[1];
+                    track.src = "/annotator-file-dir/videos/" + videoComponents[1];
                     track.kind = "subtitles";
                     track.srclang = "en";
                     track.label = "English";

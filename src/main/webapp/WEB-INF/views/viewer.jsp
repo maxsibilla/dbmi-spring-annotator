@@ -27,8 +27,8 @@
         </c:if>
 
         <c:if test="${contentIsVideo}">
-            <video controls src="resources/video/${fileContents}" class="video-player" id="main-video">
-                <track default src="resources/video/${subtitles}" label="English subtitles" kind="subtitles"
+            <video controls src="/annotator-file-dir/videos/${fileContents}" class="video-player" id="main-video">
+                <track default src="/annotator-file-dir/videos/${subtitles}" label="English subtitles" kind="subtitles"
                        srclang="en"></track>
             </video>
 
