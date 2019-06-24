@@ -50,3 +50,14 @@ body {
     padding: 10px;
     text-align: center;
 }
+
+video::cue {
+    opacity: 0;
+    background-color: transparent;
+    font-size: 0px !important;
+}
+
+/*video::-webkit-media-text-track-display {*/
+/*    !*Style the text itself*!*/
+/*    color: transparent;*/
+/*}*/
