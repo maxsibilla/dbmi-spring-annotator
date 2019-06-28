@@ -1,9 +1,12 @@
 package edu.pitt.nccih.controller;
 
-import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+import edu.pitt.nccih.auth.model.Role;
+import edu.pitt.nccih.auth.model.User;
+import edu.pitt.nccih.auth.service.UserService;
 import edu.pitt.nccih.models.EnglishPhrase;
 import edu.pitt.nccih.models.File;
 import edu.pitt.nccih.service.FileService;
@@ -19,6 +22,8 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,8 +31,11 @@ import static edu.pitt.nccih.controller.AnnotatorController.ANNOTATOR_DIR;
 
 @Controller
 public class HomeController {
-    private static Map<String, String> definitions;
-    private static Map<String, EnglishPhrase> englishDefinitions;
+    public static Map<String, String> definitions;
+    public static Map<String, EnglishPhrase> englishDefinitions;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private FileService fileService;
@@ -45,10 +53,13 @@ public class HomeController {
     @GetMapping("/view")
     public String view(@RequestParam String uri, Model model, HttpSession session) {
         try {
+            //To create pre-annotation set variable "preAnnotationType" to the proper tag this will be creating (enlgish or scientific) and set model attribute "addPreAnnotation" to true
+
 //            serializeDefinitions();
 //            serializeEnglishDefinitions();
             Map<String, String> phrases = new HashMap();
-            createPreAnnotations(phrases);
+            String preAnnotationType = "english";
+            createPreAnnotations(phrases, preAnnotationType);
 
             //load html file into page
             File file = fileService.findByUri(uri);
@@ -65,7 +76,20 @@ public class HomeController {
                 contents = file.getUrl();
             }
 
-
+            if (Interceptor.ifLoggedIn(session)) {
+                User user = userService.findByUsername(session.getAttribute("username").toString());
+                for (Role role : user.getRoles()) {
+                    if (role.getName().equals("Editor")) {
+                        model.addAttribute("readOnly", false);
+                        break;
+                    } else {
+                        model.addAttribute("readOnly", true);
+                    }
+                }
+            } else {
+                model.addAttribute("readOnly", true);
+            }
+            model.addAttribute("preAnnotationType", preAnnotationType);
             model.addAttribute("addPreAnnotation", false);
             model.addAttribute("phrases", phrases);
             model.addAttribute("fileContents", contents);
@@ -76,7 +100,7 @@ public class HomeController {
         }
     }
 
-    private void createPreAnnotations(Map<String, String> phrases) throws IOException {
+    private void createPreAnnotations(Map<String, String> phrases, String preAnnotationType) throws IOException {
         if (definitions == null) {
             definitions = deserializeDefinitions();
         }
@@ -85,10 +109,18 @@ public class HomeController {
         }
         List<String> acceptedSemanticTypes = new ArrayList<>();
         List<String[]> reportData = new ArrayList<>();
-        reportData.add(new String[]{"Word", "Definition", "CUI", "Semantic Type", "Terminology"});
 
-        buildAcceptedSemanticTypesList(acceptedSemanticTypes);
-        getPhrasesFromJson(phrases, acceptedSemanticTypes, reportData);
+        if (preAnnotationType.equals("scientific")) {
+            reportData.add(new String[]{"Word", "Definition", "CUI", "Semantic Type", "Terminology"});
+            buildAcceptedSemanticTypesList(acceptedSemanticTypes);
+            getPhrasesFromJson(phrases, acceptedSemanticTypes, reportData);
+        }
+
+        if (preAnnotationType.equals("english")) {
+            reportData.add(new String[]{"Word", "Definition", "Rating"});
+            getPhrasesFromEnglishWordListing(phrases, reportData);
+        }
+
         writeReport(reportData);
     }
 
@@ -101,7 +133,7 @@ public class HomeController {
     }
 
     private void getPhrasesFromJson(Map<String, String> phrases, List<String> acceptedSemanticTypes, List<String[]> reportData) throws IOException {
-        String json = new String(java.nio.file.Files.readAllBytes(Paths.get(ANNOTATOR_DIR + "FibrodysplasiaJson.json")));
+        String json = new String(java.nio.file.Files.readAllBytes(Paths.get(ANNOTATOR_DIR + "PhenotypeJson.json")));
         JsonObject jsonObject = new JsonParser().parse(json).getAsJsonObject();
         JsonArray utterances = jsonObject.get("AllDocuments").getAsJsonArray().get(0).getAsJsonObject().get("Document").getAsJsonObject().get("Utterances").getAsJsonArray();
 
@@ -138,6 +170,25 @@ public class HomeController {
                 }
             }
         }
+    }
+
+    private void getPhrasesFromEnglishWordListing(Map<String, String> phrases, List<String[]> reportData) throws IOException {
+        String htmlString = new String(java.nio.file.Files.readAllBytes(Paths.get(ANNOTATOR_DIR + "PhenotypeText.txt"))).toLowerCase();
+        for (Map.Entry<String, EnglishPhrase> entry : englishDefinitions.entrySet()) {
+            if (isContain(htmlString, entry.getKey())) {
+                if (entry.getValue().getDifficulty().equals("D") || entry.getValue().getDifficulty().equals("T6")) {
+                    phrases.put(entry.getKey(), entry.getValue().getDefinition());
+                    reportData.add(new String[]{entry.getKey(), entry.getValue().getDefinition(), entry.getValue().getDifficulty()});
+                }
+            }
+        }
+    }
+
+    private static boolean isContain(String source, String subItem) {
+        String pattern = "\\b" + subItem + "\\b";
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(source);
+        return m.find();
     }
 
     private void serializeDefinitions() {

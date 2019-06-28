@@ -64,6 +64,14 @@ public class AnnotatorController {
         if (Interceptor.ifLoggedIn(session)) {
             User user = userService.findByUsername(session.getAttribute("username").toString());
 
+            if (annotation.getWordType().equals("english")) {
+                annotation.setTags(new String[]{"english"});
+                annotation.setWordDifficulty(HomeController.englishDefinitions.get(annotation.getQuote()).getDifficulty());
+            } else {
+                annotation.setTags(new String[]{"scientific"});
+            }
+
+
             if (annotation.getId() == null) {
                 LocalDateTime localDateTime = LocalDateTime.now();
                 annotation.setCreated(localDateTime);

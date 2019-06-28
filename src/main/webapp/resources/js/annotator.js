@@ -1018,6 +1018,8 @@
             annotation.quote = annotation.quote.join(" / ");
             $(annotation.highlights).data("annotation", annotation);
             $(annotation.highlights).attr("data-annotation-id", annotation.id);
+            $(annotation.highlights).attr("data-annotation-tag", annotation.tags[0]);
+            $(annotation.highlights).attr("data-annotation-difficulty", annotation.wordDifficulty);
             return annotation
         };
         Annotator.prototype.updateAnnotation = function(annotation) {

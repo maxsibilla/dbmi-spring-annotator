@@ -69,6 +69,16 @@
     </div>
 </div>
 
+<div class="col-md-4">
+    <div class="legend-large d-none d-sm-block">
+        <button id="show-legend" class="btn btn-secondary btn-xs" onclick="toggleLegend('show')">Show Legend</button>
+        <div id="main-legend" class="legend display-none">
+            <button id="legend-button" class="btn btn-outline-dark btn-xs" onclick="toggleLegend('hide')">Hide</button>
+            <myTags:legendTable/>
+        </div>
+    </div>
+</div>
+
 <script>
     var annotator;
     $(document).ready(function () {
@@ -76,7 +86,7 @@
         if (uri == null || uri == undefined) {
             uri = 'default';
         }
-        createAnnotator();
+        createAnnotator(uri);
 
         <c:if test="${contentIsVideo}">
         document.getElementById('main-video').textTracks[0].addEventListener('cuechange', function () {
@@ -118,10 +128,14 @@
         //enable basic annotator functionality
         <c:choose>
             <c:when test="${contentIsFile}">
-                annotator = $('#content').annotator();
+                annotator = $('#content').annotator( {
+                    readOnly: ${readOnly}
+                });
             </c:when>
             <c:otherwise>
-                annotator = $('#my-subtitle-display').annotator();
+                annotator = $('#my-subtitle-display').annotator({
+                    readOnly: ${readOnly}
+                });
             </c:otherwise>
         </c:choose>
          //enable ability to save annotations
@@ -168,7 +182,7 @@
                 annotation.quote = searchWord;
                 annotation.text = definition;
                 annotation.uri = uri;
-                annotation.wordType = "scientific";
+                annotation.wordType = "${preAnnotationType}";
                 range.start = xPath;
                 range.end = xPath;
                 range.startOffset = startOffset;

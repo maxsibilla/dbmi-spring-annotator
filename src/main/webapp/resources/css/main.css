@@ -61,3 +61,51 @@ video::cue {
 /*    !*Style the text itself*!*/
 /*    color: transparent;*/
 /*}*/
+
+
+.legend-large {
+    margin-top: 45px;
+    position: fixed;
+    margin-right: 10px;
+    right: 15px;
+    top: 0;
+    z-index: 100;
+}
+
+#legend-button {
+    position: absolute;
+    right: 12px;
+    top: 6px
+}
+
+.legend {
+    color: #0c2b65;
+    border: 2px solid #0c2b65;
+    padding-right: 5px;
+    padding-left: 5px;
+    border-radius: 5px;
+    background-color: white;
+    max-width: 267px;
+}
+
+.legend-font {
+    font-size: 11px;
+}
+
+.btn-xs {
+    padding: .25rem .4rem;
+    font-size: .875rem;
+    line-height: .5;
+    border-radius: .2rem;
+}
+
+.display-none {
+    display: none;
+}
+
+.color-box {
+    width: 15px;
+    height: 15px;
+    background-color: #ccc;
+    border: 1px solid #000;
+}
