@@ -65,13 +65,14 @@ public class AnnotatorController {
 
     @RequestMapping(value = "/trackAnnotation", method = RequestMethod.POST)
     @ResponseBody
-    public void trackAnnotation(@RequestParam int annotationId, HttpSession session, HttpServletResponse response) {
+    public void trackAnnotation(@RequestParam int annotationId, @RequestParam double time, HttpSession session, HttpServletResponse response) {
         if (Interceptor.ifLoggedIn(session)) {
             User user = userService.findByUsername(session.getAttribute("username").toString());
             Annotation annotation = annotationService.findById(Long.valueOf(annotationId));
             AnnotationTracker annotationTracker = new AnnotationTracker();
             annotationTracker.setUser(user);
             annotationTracker.setAnnotation(annotation);
+            annotationTracker.setTimeToClick(time);
 
             annotationTrackerRepository.save(annotationTracker);
 

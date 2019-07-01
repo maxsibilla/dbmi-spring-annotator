@@ -1218,6 +1218,7 @@
 
             //track annotation
             $.post("annotation/trackAnnotation", {
+                time: performance.now(),
                 annotationId: annotations[0].id,
                 async: false,
             }, function (data) {

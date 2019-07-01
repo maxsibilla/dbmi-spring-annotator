@@ -19,6 +19,8 @@ public class AnnotationTracker {
     @JoinColumn(name = "user_id")
     private User user;
 
+    private double timeToClick;
+
 
     public Long getId() {
         return id;
@@ -42,5 +44,14 @@ public class AnnotationTracker {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    //time in milliseconds
+    public double getTimeToClick() {
+        return timeToClick;
+    }
+
+    public void setTimeToClick(double timeToClick) {
+        this.timeToClick = timeToClick;
     }
 }
