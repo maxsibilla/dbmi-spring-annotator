@@ -51,7 +51,7 @@ public class HomeController {
     }
 
     @GetMapping("/view")
-    public String view(@RequestParam String uri, Model model, HttpSession session) {
+    public String view(@RequestParam String uri, @RequestParam boolean showAnnotator, Model model, HttpSession session) {
         try {
             //To create pre-annotation set variable "preAnnotationType" to the proper tag this will be creating (enlgish or scientific) and set model attribute "addPreAnnotation" to true
 
@@ -75,6 +75,13 @@ public class HomeController {
                 model.addAttribute("subtitles", FilenameUtils.getBaseName(file.getUrl()) + ".vtt");
                 contents = file.getUrl();
             }
+
+            if(showAnnotator == false) {
+                model.addAttribute("disableAnnotations", true);
+            } else {
+                model.addAttribute("disableAnnotations", false);
+            }
+
 
             if (Interceptor.ifLoggedIn(session)) {
                 User user = userService.findByUsername(session.getAttribute("username").toString());

@@ -1204,10 +1204,10 @@
             $('#annotation-video').empty();
 
             $('#nested-viewer').jqxSplitter({
-            height: '100%',
-            width: '100%',
-            panels: [{size: '50%'}, {size: '50%'}]
-        });
+                height: '100%',
+                width: '100%',
+                panels: [{size: '50%'}, {size: '50%'}]
+            });
 
             var quote = document.createElement('h6');
             quote.appendChild(document.createTextNode(annotations[0].quote));
@@ -1215,6 +1215,13 @@
             comment.appendChild(document.createTextNode('Definition: ' + annotations[0].text));
             $('#annotation-definition').append(quote);
             $('#annotation-definition').append(comment);
+
+            //track annotation
+            $.post("annotation/trackAnnotation", {
+                annotationId: annotations[0].id,
+                async: false,
+            }, function (data) {
+            });
 
             //Load figures
             try {

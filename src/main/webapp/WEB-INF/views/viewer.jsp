@@ -27,9 +27,10 @@
         </c:if>
 
         <c:if test="${contentIsVideo}">
-<%--            to set start and end time--%>
-            <video controls src="/annotator-file-dir/videos/${fileContents}#t=30,189" class="video-player" id="main-video">
-<%--            <video controls src="/annotator-file-dir/videos/${fileContents}" class="video-player" id="main-video">--%>
+            <%--            to set start and end time--%>
+            <video controls src="/annotator-file-dir/videos/${fileContents}#t=30,189" class="video-player"
+                   id="main-video">
+                    <%--            <video controls src="/annotator-file-dir/videos/${fileContents}" class="video-player" id="main-video">--%>
                 <track default src="/annotator-file-dir/videos/${subtitles}" label="English subtitles" kind="subtitles"
                        srclang="en"></track>
             </video>
@@ -86,7 +87,9 @@
         if (uri == null || uri == undefined) {
             uri = 'default';
         }
-        createAnnotator(uri);
+        if (${not disableAnnotations}) {
+            createAnnotator(uri);
+        }
 
         <c:if test="${contentIsVideo}">
         document.getElementById('main-video').textTracks[0].addEventListener('cuechange', function () {
@@ -95,8 +98,8 @@
             createAnnotator(uri + this.activeCues[0].startTime);
         });
 
-        document.getElementById('my-subtitle-display').addEventListener('click', function() {
-           document.getElementById("main-video").pause();
+        document.getElementById('my-subtitle-display').addEventListener('click', function () {
+            document.getElementById("main-video").pause();
         });
         </c:if>
 
@@ -127,18 +130,18 @@
 
         //enable basic annotator functionality
         <c:choose>
-            <c:when test="${contentIsFile}">
-                annotator = $('#content').annotator( {
-                    readOnly: ${readOnly}
-                });
-            </c:when>
-            <c:otherwise>
-                annotator = $('#my-subtitle-display').annotator({
-                    readOnly: ${readOnly}
-                });
-            </c:otherwise>
+        <c:when test="${contentIsFile}">
+        annotator = $('#content').annotator({
+            readOnly: ${readOnly}
+        });
+        </c:when>
+        <c:otherwise>
+        annotator = $('#my-subtitle-display').annotator({
+            readOnly: ${readOnly}
+        });
+        </c:otherwise>
         </c:choose>
-         //enable ability to save annotations
+        //enable ability to save annotations
         annotator.annotator('addPlugin', 'Store', {
             prefix: '${contextPath}/annotation',
             annotationData: {
@@ -206,7 +209,6 @@
             })(i);
         }
     }
-
 
     function getUrlParameter(name, url) {
         if (!url) url = location.href
