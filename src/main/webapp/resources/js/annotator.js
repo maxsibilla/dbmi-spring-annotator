@@ -1018,8 +1018,12 @@
             annotation.quote = annotation.quote.join(" / ");
             $(annotation.highlights).data("annotation", annotation);
             $(annotation.highlights).attr("data-annotation-id", annotation.id);
-            $(annotation.highlights).attr("data-annotation-tag", annotation.tags[0]);
-            $(annotation.highlights).attr("data-annotation-difficulty", annotation.wordDifficulty);
+            if(annotation.tags != undefined) {
+                $(annotation.highlights).attr("data-annotation-tag", annotation.tags[0]);
+            }
+            if(annotation.wordDifficulty != undefined) {
+                $(annotation.highlights).attr("data-annotation-difficulty", annotation.wordDifficulty);
+            }
             return annotation
         };
         Annotator.prototype.updateAnnotation = function(annotation) {
@@ -1235,7 +1239,7 @@
                             carouselItem.classList.add('active');
                         }
                         var figure = document.createElement('img');
-                        figure.src = "/annotator-file-dir/figure/" + figures[i];
+                        figure.src = "/annotator-file-dir/figures/" + figures[i];
                         figure.classList.add('d-block');
                         carouselItem.appendChild(figure);
                         $('#annotation-figure').append(carouselItem);

@@ -28,7 +28,7 @@
 
         <c:if test="${contentIsVideo}">
             <%--            to set start and end time--%>
-            <video controls src="/annotator-file-dir/videos/${fileContents}#t=30,189" class="video-player"
+            <video controls src="/annotator-file-dir/videos/${fileContents}#t=11,189" class="video-player"
                    id="main-video">
                     <%--            <video controls src="/annotator-file-dir/videos/${fileContents}" class="video-player" id="main-video">--%>
                 <track default src="/annotator-file-dir/videos/${subtitles}" label="English subtitles" kind="subtitles"
