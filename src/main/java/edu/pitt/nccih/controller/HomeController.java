@@ -33,6 +33,7 @@ import static edu.pitt.nccih.controller.AnnotatorController.ANNOTATOR_DIR;
 public class HomeController {
     public static Map<String, String> definitions;
     public static Map<String, EnglishPhrase> englishDefinitions;
+    private static Map<String, List<UserFileInfo>> userFileInformation;
 
     @Autowired
     private UserService userService;
@@ -42,6 +43,15 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Model model, HttpSession session) {
+        if (userFileInformation == null) {
+            userFileInformation = new HashMap<>();
+            createUserFileInformation();
+        }
+        if (Interceptor.ifLoggedIn(session)) {
+            User user = userService.findByUsername(session.getAttribute("username").toString());
+            model.addAttribute("userFileInfoList", userFileInformation.get(user.getUsername()));
+        }
+
         return "welcome";
     }
 
@@ -57,9 +67,11 @@ public class HomeController {
 
 //            serializeDefinitions();
 //            serializeEnglishDefinitions();
+
             Map<String, String> phrases = new HashMap();
             String preAnnotationType = "english";
-            createPreAnnotations(phrases, preAnnotationType);
+            String preAnnotationFile = "PunnettText.txt";
+            createPreAnnotations(phrases, preAnnotationType, preAnnotationFile);
 
             //load html file into page
             File file = fileService.findByUri(uri);
@@ -76,7 +88,7 @@ public class HomeController {
                 contents = file.getUrl();
             }
 
-            if(showAnnotator == false) {
+            if (showAnnotator == false) {
                 model.addAttribute("disableAnnotations", true);
             } else {
                 model.addAttribute("disableAnnotations", false);
@@ -107,7 +119,7 @@ public class HomeController {
         }
     }
 
-    private void createPreAnnotations(Map<String, String> phrases, String preAnnotationType) throws IOException {
+    private void createPreAnnotations(Map<String, String> phrases, String preAnnotationType, String preAnnotationFile) throws IOException {
         if (definitions == null) {
             definitions = deserializeDefinitions();
         }
@@ -120,27 +132,27 @@ public class HomeController {
         if (preAnnotationType.equals("scientific")) {
             reportData.add(new String[]{"Word", "Definition", "CUI", "Semantic Type", "Terminology"});
             buildAcceptedSemanticTypesList(acceptedSemanticTypes);
-            getPhrasesFromJson(phrases, acceptedSemanticTypes, reportData);
+            getPhrasesFromJson(phrases, acceptedSemanticTypes, reportData, preAnnotationFile);
         }
 
         if (preAnnotationType.equals("english")) {
             reportData.add(new String[]{"Word", "Definition", "Rating"});
-            getPhrasesFromEnglishWordListing(phrases, reportData);
+            getPhrasesFromEnglishWordListing(phrases, reportData, preAnnotationFile);
         }
 
         writeReport(reportData);
     }
 
     private void buildAcceptedSemanticTypesList(List<String> list) throws FileNotFoundException {
-        Scanner s = new Scanner(new java.io.File(ANNOTATOR_DIR + "t1.txt"));
+        Scanner s = new Scanner(new java.io.File(ANNOTATOR_DIR + "pre-annotation/t1.txt"));
         while (s.hasNext()) {
             list.add(s.next());
         }
         s.close();
     }
 
-    private void getPhrasesFromJson(Map<String, String> phrases, List<String> acceptedSemanticTypes, List<String[]> reportData) throws IOException {
-        String json = new String(java.nio.file.Files.readAllBytes(Paths.get(ANNOTATOR_DIR + "PhenotypeJson.json")));
+    private void getPhrasesFromJson(Map<String, String> phrases, List<String> acceptedSemanticTypes, List<String[]> reportData, String preAnnotationFile) throws IOException {
+        String json = new String(java.nio.file.Files.readAllBytes(Paths.get(ANNOTATOR_DIR + "pre-annotation/" + preAnnotationFile)));
         JsonObject jsonObject = new JsonParser().parse(json).getAsJsonObject();
         JsonArray utterances = jsonObject.get("AllDocuments").getAsJsonArray().get(0).getAsJsonObject().get("Document").getAsJsonObject().get("Utterances").getAsJsonArray();
 
@@ -179,8 +191,8 @@ public class HomeController {
         }
     }
 
-    private void getPhrasesFromEnglishWordListing(Map<String, String> phrases, List<String[]> reportData) throws IOException {
-        String htmlString = new String(java.nio.file.Files.readAllBytes(Paths.get(ANNOTATOR_DIR + "PhenotypeText.txt"))).toLowerCase();
+    private void getPhrasesFromEnglishWordListing(Map<String, String> phrases, List<String[]> reportData, String preAnnotationFile) throws IOException {
+        String htmlString = new String(java.nio.file.Files.readAllBytes(Paths.get(ANNOTATOR_DIR + "pre-annotation/" + preAnnotationFile))).toLowerCase();
         for (Map.Entry<String, EnglishPhrase> entry : englishDefinitions.entrySet()) {
             if (isContain(htmlString, entry.getKey())) {
                 if (entry.getValue().getDifficulty().equals("D") || entry.getValue().getDifficulty().equals("T6")) {
@@ -200,7 +212,7 @@ public class HomeController {
 
     private void serializeDefinitions() {
         Map<String, String> map = new HashMap<>();
-        String csvFile = "/Users/mas400/dev/annotator-file-dir/select_CUI__DEF_from_MRDEF_where_SAB____.csv";
+        String csvFile = "/Users/mas400/dev/annotator-file-dir/pre-annotation/select_CUI__DEF_from_MRDEF_where_SAB____.csv";
         BufferedReader br = null;
         String line = "";
         String cvsSplitBy = ",";
@@ -216,7 +228,7 @@ public class HomeController {
 
             }
 
-            FileOutputStream fos = new FileOutputStream(ANNOTATOR_DIR + "definitions.ser");
+            FileOutputStream fos = new FileOutputStream(ANNOTATOR_DIR + "pre-annotation/definitions.ser");
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(map);
             oos.close();
@@ -238,7 +250,7 @@ public class HomeController {
 
     private void writeReport(List<String[]> reportData) {
         try {
-            java.io.File csvOutputFile = new java.io.File(ANNOTATOR_DIR + "report.csv");
+            java.io.File csvOutputFile = new java.io.File(ANNOTATOR_DIR + "pre-annotation/report.csv");
             try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
                 reportData.stream()
                         .map(this::convertToCSV)
@@ -267,7 +279,7 @@ public class HomeController {
     private Map<String, String> deserializeDefinitions() {
         Map<String, String> map = null;
         try {
-            FileInputStream fis = new FileInputStream(ANNOTATOR_DIR + "definitions.ser");
+            FileInputStream fis = new FileInputStream(ANNOTATOR_DIR + "pre-annotation/definitions.ser");
             ObjectInputStream ois = new ObjectInputStream(fis);
             map = (HashMap) ois.readObject();
             ois.close();
@@ -281,7 +293,7 @@ public class HomeController {
 
     private void serializeEnglishDefinitions() {
         Map<String, EnglishPhrase> map = new HashMap<>();
-        String csvFile = "/Users/mas400/dev/annotator-file-dir/Andy Biemiller Words Worth Teaching Alphabetical and Ratings List.csv";
+        String csvFile = "/Users/mas400/dev/annotator-file-dir/pre-annotation/Andy Biemiller Words Worth Teaching Alphabetical and Ratings List.csv";
         BufferedReader br = null;
         String line = "";
         String cvsSplitBy = ",";
@@ -301,7 +313,7 @@ public class HomeController {
 
             }
 
-            FileOutputStream fos = new FileOutputStream(ANNOTATOR_DIR + "englishDefinitions.ser");
+            FileOutputStream fos = new FileOutputStream(ANNOTATOR_DIR + "pre-annotation/englishDefinitions.ser");
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(map);
             oos.close();
@@ -324,7 +336,7 @@ public class HomeController {
     private Map<String, EnglishPhrase> deserializeEnglishDefinitions() {
         Map<String, EnglishPhrase> map = null;
         try {
-            FileInputStream fis = new FileInputStream(ANNOTATOR_DIR + "englishDefinitions.ser");
+            FileInputStream fis = new FileInputStream(ANNOTATOR_DIR + "pre-annotation/englishDefinitions.ser");
             ObjectInputStream ois = new ObjectInputStream(fis);
             map = (HashMap) ois.readObject();
             ois.close();
@@ -333,6 +345,49 @@ public class HomeController {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    private void createUserFileInformation() {
+        try {
+            String json = new String(java.nio.file.Files.readAllBytes(Paths.get(ANNOTATOR_DIR + "usersConfig.json")));
+            JsonArray usersJson = new JsonParser().parse(json).getAsJsonObject().get("users").getAsJsonArray();
+            for (int i = 0; i < usersJson.size(); i++) {
+                String username = usersJson.get(i).getAsJsonObject().keySet().iterator().next();
+                JsonArray userFiles = usersJson.get(i).getAsJsonObject().get(username).getAsJsonObject().get("files").getAsJsonArray();
+                List<UserFileInfo> userFileInfoList = new ArrayList<>();
+                for (int j = 0; j < userFiles.size(); j++) {
+                    UserFileInfo userFileInfo = new UserFileInfo();
+                    JsonObject fileObject = userFiles.get(j).getAsJsonObject();
+                    userFileInfo.setFilename(fileObject.get("name").getAsString());
+                    userFileInfo.setHasAssistance(fileObject.get("hasAssistance").getAsBoolean());
+                    userFileInfoList.add(userFileInfo);
+                }
+                userFileInformation.put(username, userFileInfoList);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public class UserFileInfo {
+        private String filename;
+        private boolean hasAssistance;
+
+        public String getFilename() {
+            return filename;
+        }
+
+        public void setFilename(String filename) {
+            this.filename = filename;
+        }
+
+        public boolean isHasAssistance() {
+            return hasAssistance;
+        }
+
+        public void setHasAssistance(boolean hasAssistance) {
+            this.hasAssistance = hasAssistance;
         }
     }
 }
