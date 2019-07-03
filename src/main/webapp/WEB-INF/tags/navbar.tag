@@ -11,10 +11,13 @@
     <div class="collapse navbar-collapse" id="navbars">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" href="${contextPath}/view?uri=Phenotype">Phenotype <span class="sr-only">(current)</span></a>
+                <a class="nav-link" href="${contextPath}/view?uri=Phenotype&showAnnotator=true">Phenotype <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="${contextPath}/view?uri=Fibrodysplasia">Fibrodysplasia</a>
+                <a class="nav-link" href="${contextPath}/view?uri=PhenotypeVideo&showAnnotator=true">Phenotype Video</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="${contextPath}/view?uri=Fibrodysplasia&showAnnotator=true">Fibrodysplasia</a>
             </li>
         </ul>
         <c:choose>

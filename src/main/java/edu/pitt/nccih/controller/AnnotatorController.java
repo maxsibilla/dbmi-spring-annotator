@@ -4,7 +4,9 @@ import edu.pitt.nccih.GlobalConstants;
 import edu.pitt.nccih.auth.model.User;
 import edu.pitt.nccih.auth.service.UserService;
 import edu.pitt.nccih.models.Annotation;
+import edu.pitt.nccih.models.AnnotationTracker;
 import edu.pitt.nccih.models.SearchResult;
+import edu.pitt.nccih.repository.AnnotationTrackerRepository;
 import edu.pitt.nccih.service.AnnotationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,9 @@ import java.util.Map;
 public class AnnotatorController {
     @Autowired
     private AnnotationService annotationService;
+
+    @Autowired
+    private AnnotationTrackerRepository annotationTrackerRepository;
 
     @Autowired
     private UserService userService;
@@ -58,11 +63,39 @@ public class AnnotatorController {
         response.setStatus(204);
     }
 
+    @RequestMapping(value = "/trackAnnotation", method = RequestMethod.POST)
+    @ResponseBody
+    public void trackAnnotation(@RequestParam int annotationId, @RequestParam double time, HttpSession session, HttpServletResponse response) {
+        if (Interceptor.ifLoggedIn(session)) {
+            User user = userService.findByUsername(session.getAttribute("username").toString());
+            Annotation annotation = annotationService.findById(Long.valueOf(annotationId));
+            AnnotationTracker annotationTracker = new AnnotationTracker();
+            annotationTracker.setUser(user);
+            annotationTracker.setAnnotation(annotation);
+            annotationTracker.setTimeToClick(time);
+
+            annotationTrackerRepository.save(annotationTracker);
+
+            return;
+        }
+        response.setStatus(401);
+
+    }
+
+
     @RequestMapping(value = "/newAnnotation", method = RequestMethod.POST)
     @ResponseBody
     public void createProgrammatically(@RequestBody Annotation annotation, HttpSession session, HttpServletResponse response) {
         if (Interceptor.ifLoggedIn(session)) {
             User user = userService.findByUsername(session.getAttribute("username").toString());
+
+            if (annotation.getWordType().equals("english")) {
+                annotation.setTags(new String[]{"english"});
+                annotation.setWordDifficulty(HomeController.englishDefinitions.get(annotation.getQuote()).getDifficulty());
+            } else {
+                annotation.setTags(new String[]{"scientific"});
+            }
+
 
             if (annotation.getId() == null) {
                 LocalDateTime localDateTime = LocalDateTime.now();

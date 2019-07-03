@@ -1018,6 +1018,12 @@
             annotation.quote = annotation.quote.join(" / ");
             $(annotation.highlights).data("annotation", annotation);
             $(annotation.highlights).attr("data-annotation-id", annotation.id);
+            if(annotation.tags != undefined) {
+                $(annotation.highlights).attr("data-annotation-tag", annotation.tags[0]);
+            }
+            if(annotation.wordDifficulty != undefined) {
+                $(annotation.highlights).attr("data-annotation-difficulty", annotation.wordDifficulty);
+            }
             return annotation
         };
         Annotator.prototype.updateAnnotation = function(annotation) {
@@ -1202,10 +1208,10 @@
             $('#annotation-video').empty();
 
             $('#nested-viewer').jqxSplitter({
-            height: '100%',
-            width: '100%',
-            panels: [{size: '50%'}, {size: '50%'}]
-        });
+                height: '100%',
+                width: '100%',
+                panels: [{size: '50%'}, {size: '50%'}]
+            });
 
             var quote = document.createElement('h6');
             quote.appendChild(document.createTextNode(annotations[0].quote));
@@ -1213,6 +1219,14 @@
             comment.appendChild(document.createTextNode('Definition: ' + annotations[0].text));
             $('#annotation-definition').append(quote);
             $('#annotation-definition').append(comment);
+
+            //track annotation
+            $.post("annotation/trackAnnotation", {
+                time: performance.now(),
+                annotationId: annotations[0].id,
+                async: false,
+            }, function (data) {
+            });
 
             //Load figures
             try {
@@ -1225,7 +1239,7 @@
                             carouselItem.classList.add('active');
                         }
                         var figure = document.createElement('img');
-                        figure.src = "/annotator-file-dir/figure/" + figures[i];
+                        figure.src = "/annotator-file-dir/figures/" + figures[i];
                         figure.classList.add('d-block');
                         carouselItem.appendChild(figure);
                         $('#annotation-figure').append(carouselItem);

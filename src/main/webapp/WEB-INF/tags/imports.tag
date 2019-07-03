@@ -13,6 +13,7 @@
     <link href="${contextPath}/resources/css/annotator.css" type="text/css" rel="stylesheet">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="${contextPath}/resources/js/main.js"></script>
     <script src="${contextPath}/resources/js/bootstrap/bootstrap.min.js"></script>
     <script src="${contextPath}/resources/js/annotator.js"></script>
 
