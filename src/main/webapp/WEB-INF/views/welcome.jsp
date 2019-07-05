@@ -25,8 +25,8 @@
                         <c:param name="showAnnotator" value="${hasAssistance}"/>
                     </c:url>
 
-                        <%--                    <h5 class="card-title">Special title treatment</h5>--%>
-                        <%--                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>--%>
+                    <h5 class="card-title">${userFileInfo.filename}</h5>
+                <%--                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>--%>
                     <a href="${url}" class="btn btn-primary">View</a>
                 </div>
             </div>

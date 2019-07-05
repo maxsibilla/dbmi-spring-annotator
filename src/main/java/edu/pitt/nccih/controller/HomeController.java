@@ -69,8 +69,8 @@ public class HomeController {
 //            serializeEnglishDefinitions();
 
             Map<String, String> phrases = new HashMap();
-            String preAnnotationType = "english";
-            String preAnnotationFile = "PunnettText.txt";
+            String preAnnotationType = "scientific";
+            String preAnnotationFile = "GeneticCodeJson.json";
             createPreAnnotations(phrases, preAnnotationType, preAnnotationFile);
 
             //load html file into page
@@ -85,6 +85,8 @@ public class HomeController {
             if (FilenameUtils.getExtension(file.getUrl()).equals("mp4")) {
                 model.addAttribute("contentIsVideo", true);
                 model.addAttribute("subtitles", FilenameUtils.getBaseName(file.getUrl()) + ".vtt");
+                model.addAttribute("startTime", file.getStartTime());
+                model.addAttribute("endTime", file.getEndTime());
                 contents = file.getUrl();
             }
 
