@@ -72,6 +72,8 @@
 
 <div class="col-md-4">
     <div class="legend-large d-none d-sm-block">
+        <a href="${contextPath}" class="btn btn-secondary btn-xs">Home</a>
+        <br>
         <button id="show-legend" class="btn btn-secondary btn-xs" onclick="toggleLegend('show')">Show Legend</button>
         <div id="main-legend" class="legend display-none">
             <button id="legend-button" class="btn btn-outline-dark btn-xs" onclick="toggleLegend('hide')">Hide</button>

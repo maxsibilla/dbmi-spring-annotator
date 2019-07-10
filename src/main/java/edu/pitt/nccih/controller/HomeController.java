@@ -71,7 +71,7 @@ public class HomeController {
             Map<String, String> phrases = new HashMap();
             String preAnnotationType = "scientific";
             String preAnnotationFile = "GeneticCodeJson.json";
-            createPreAnnotations(phrases, preAnnotationType, preAnnotationFile);
+//            createPreAnnotations(phrases, preAnnotationType, preAnnotationFile);
 
             //load html file into page
             File file = fileService.findByUri(uri);

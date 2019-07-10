@@ -13,10 +13,11 @@ function doHighlight(bodyText, searchTerm, highlightStartTag, highlightEndTag) {
     var newText = "";
     var i = -1;
     var lcSearchTerm = searchTerm.toLowerCase();
+    lcSearchTerm = new RegExp('\\b' + lcSearchTerm + '\\b');
     var lcBodyText = bodyText.toLowerCase();
 
     while (bodyText.length > 0) {
-        i = lcBodyText.indexOf(lcSearchTerm, i + 1);
+        i = lcBodyText.search(lcSearchTerm);
         if (i < 0) {
             newText += bodyText;
             bodyText = "";
