@@ -7,8 +7,11 @@ import com.google.gson.reflect.TypeToken;
 import edu.pitt.nccih.auth.model.Role;
 import edu.pitt.nccih.auth.model.User;
 import edu.pitt.nccih.auth.service.UserService;
+import edu.pitt.nccih.models.Annotation;
 import edu.pitt.nccih.models.EnglishPhrase;
 import edu.pitt.nccih.models.File;
+import edu.pitt.nccih.models.Range;
+import edu.pitt.nccih.service.AnnotationService;
 import edu.pitt.nccih.service.FileService;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,10 @@ import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,6 +44,9 @@ public class HomeController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AnnotationService annotationService;
 
     @Autowired
     private FileService fileService;
@@ -69,9 +79,11 @@ public class HomeController {
 //            serializeEnglishDefinitions();
 
             Map<String, String> phrases = new HashMap();
-            String preAnnotationType = "scientific";
-            String preAnnotationFile = "GeneticCodeJson.json";
-//            createPreAnnotations(phrases, preAnnotationType, preAnnotationFile);
+            String preAnnotationType = "english";
+            //json file generated from metamap for scientific phrases. txt file of content for english
+            String preAnnotationFile = "RNAText.txt";
+            String subtitleFile = "RNAText.txt";
+//            createPreAnnotations(phrases, preAnnotationType, preAnnotationFile, subtitleFile, uri);
 
             //load html file into page
             File file = fileService.findByUri(uri);
@@ -121,7 +133,7 @@ public class HomeController {
         }
     }
 
-    private void createPreAnnotations(Map<String, String> phrases, String preAnnotationType, String preAnnotationFile) throws IOException {
+    private void createPreAnnotations(Map<String, String> phrases, String preAnnotationType, String preAnnotationFile, String subtitleFile, String uri) throws IOException, ParseException {
         if (definitions == null) {
             definitions = deserializeDefinitions();
         }
@@ -142,7 +154,75 @@ public class HomeController {
             getPhrasesFromEnglishWordListing(phrases, reportData, preAnnotationFile);
         }
 
+        if (subtitleFile != null) {
+            createSubtitlePreAnnotations(phrases, preAnnotationType, subtitleFile, uri);
+        }
+
         writeReport(reportData);
+    }
+
+    private void createSubtitlePreAnnotations(Map<String, String> phrases, String preAnnotationType, String subtitleFile, String uri) throws IOException, ParseException {
+        BufferedReader reader;
+
+        try {
+            reader = new BufferedReader(new FileReader(ANNOTATOR_DIR + "pre-annotation/" + subtitleFile));
+            String line = reader.readLine();
+            String startTime = "";
+            String fullLine = "";
+            while (line != null) {
+                System.out.println(line);
+                // read next line
+                line = reader.readLine();
+                if (line.contains("-->")) {
+                    fullLine = "";
+                    String[] times = line.split("-->");
+                    Date date = new SimpleDateFormat("hh:mm:ss.SSS").parse(times[0]);
+                    Calendar calendar = GregorianCalendar.getInstance(); // creates a new calendar instance
+                    calendar.setTime(date);
+                    int start = calendar.get(Calendar.HOUR) * 3600;
+                    start += calendar.get(Calendar.MINUTE) * 60;
+                    start += calendar.get(Calendar.SECOND);
+                    startTime = start + "." + calendar.get(Calendar.MILLISECOND);
+                    DecimalFormat decimalFormat = new DecimalFormat("0.###");
+                    startTime = decimalFormat.format(Double.valueOf(startTime));
+                } else {
+                    fullLine += line;
+                    for (String word : line.split("\\s+")) {
+                        if (phrases.containsKey(word)) {
+                            Annotation annotation = new Annotation();
+                            Range range = new Range();
+                            int start = fullLine.indexOf(word);
+                            range.setStartOffset(start);
+                            range.setEndOffset(start + word.length());
+                            range.setStart("");
+                            range.setEnd("");
+                            annotation.setRange(range);
+                            annotation.setQuote(word);
+                            annotation.setText(phrases.get(word));
+                            annotation.setUri(uri + startTime);
+
+                            LocalDateTime localDateTime = LocalDateTime.now();
+                            annotation.setCreated(localDateTime);
+                            annotation.setUpdated(localDateTime);
+                            annotation.setUser(userService.findByUsername("maxsibilla"));
+
+                            if (preAnnotationType.equals("english")) {
+                                annotation.setTags(new String[]{"english"});
+                                annotation.setWordDifficulty(englishDefinitions.get(word).getDifficulty());
+                            } else {
+                                annotation.setTags(new String[]{"scientific"});
+                            }
+
+                            annotationService.save(annotation);
+
+                        }
+                    }
+                }
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void buildAcceptedSemanticTypesList(List<String> list) throws FileNotFoundException {
