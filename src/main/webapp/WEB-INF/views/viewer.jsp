@@ -28,7 +28,8 @@
 
         <c:if test="${contentIsVideo}">
             <%--            to set start and end time--%>
-            <video controls src="/annotator-file-dir/videos/${fileContents}#t=${startTime},${endTime}" class="video-player"
+            <video controls src="/annotator-file-dir/videos/${fileContents}#t=${startTime},${endTime}"
+                   class="video-player"
                    id="main-video">
                     <%--            <video controls src="/annotator-file-dir/videos/${fileContents}" class="video-player" id="main-video">--%>
                 <track default src="/annotator-file-dir/videos/${subtitles}" label="English subtitles" kind="subtitles"
@@ -123,6 +124,40 @@
         </c:forEach>
         </c:if>
 
+
+        var video = document.getElementById('main-video');
+        var startTime;
+        var endTime;
+        <c:choose>
+            <c:when test="${not empty startTime}">
+                startTime = ${startTime};
+            </c:when>
+            <c:otherwise>
+                startTime = 0;
+            </c:otherwise>
+        </c:choose>
+
+        <c:choose>
+            <c:when test="${not empty endTime}">
+                endTime = ${endTime};
+            </c:when>
+            <c:otherwise>
+                endTime = 0;
+            </c:otherwise>
+        </c:choose>
+
+        video.addEventListener('timeupdate', function () {
+            if (!video.seeking) {
+                supposedCurrentTime = video.currentTime;
+            }
+        });
+        // prevent user from seeking
+        video.addEventListener('seeking', function () {
+            if (video.currentTime > endTime || video.currentTime < startTime) {
+                console.log("Seeking is disabled");
+                video.currentTime = supposedCurrentTime;
+            }
+        });
     });
 
     function createAnnotator(uri) {
