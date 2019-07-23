@@ -124,6 +124,40 @@
         </c:forEach>
         </c:if>
 
+
+        var video = document.getElementById('main-video');
+        var startTime;
+        var endTime;
+        <c:choose>
+            <c:when test="${not empty startTime}">
+                startTime = ${startTime};
+            </c:when>
+            <c:otherwise>
+                startTime = 0;
+            </c:otherwise>
+        </c:choose>
+
+        <c:choose>
+            <c:when test="${not empty endTime}">
+                endTime = ${endTime};
+            </c:when>
+            <c:otherwise>
+                endTime = 0;
+            </c:otherwise>
+        </c:choose>
+
+        video.addEventListener('timeupdate', function () {
+            if (!video.seeking) {
+                supposedCurrentTime = video.currentTime;
+            }
+        });
+        // prevent user from seeking
+        video.addEventListener('seeking', function () {
+            if (video.currentTime > endTime || video.currentTime < startTime) {
+                console.log("Seeking is disabled");
+                video.currentTime = supposedCurrentTime;
+            }
+        });
     });
 
     function createAnnotator(uri) {
