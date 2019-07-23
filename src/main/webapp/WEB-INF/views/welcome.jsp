@@ -25,11 +25,18 @@
                         <c:param name="showAnnotator" value="${hasAssistance}"/>
                     </c:url>
 
-                    <h5 class="card-title">${userFileInfo.filename}</h5>
+                    <h5 class="card-title">${userFileInfo.publicFilename}</h5>
                 <%--                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>--%>
-                    <a href="${url}" class="btn btn-primary">View</a>
+                    <a href="${url}" class="btn btn-primary
+                        <c:forEach items="${uncompletedFiles}" var="file" varStatus="status">
+                            <c:if test="${file eq userFileInfo.filename}">
+                                disabled btn-secondary
+                            </c:if>
+                        </c:forEach>
+                     ">View</a>
                 </div>
             </div>
+            <br>
         </c:forEach>
     </div>
 </main>

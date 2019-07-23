@@ -28,7 +28,8 @@
 
         <c:if test="${contentIsVideo}">
             <%--            to set start and end time--%>
-            <video controls src="/annotator-file-dir/videos/${fileContents}#t=${startTime},${endTime}" class="video-player"
+            <video controls src="/annotator-file-dir/videos/${fileContents}#t=${startTime},${endTime}"
+                   class="video-player"
                    id="main-video">
                     <%--            <video controls src="/annotator-file-dir/videos/${fileContents}" class="video-player" id="main-video">--%>
                 <track default src="/annotator-file-dir/videos/${subtitles}" label="English subtitles" kind="subtitles"
@@ -72,7 +73,7 @@
 
 <div class="col-md-4">
     <div class="legend-large d-none d-sm-block">
-        <a href="${contextPath}" class="btn btn-secondary btn-xs">Home</a>
+        <button class="btn btn-secondary btn-xs" id="complete">Complete</button>
         <br>
         <button id="show-legend" class="btn btn-secondary btn-xs" onclick="toggleLegend('show')">Show Legend</button>
         <div id="main-legend" class="legend display-none">
@@ -220,6 +221,28 @@
         var results = regex.exec(url);
         return results == null ? null : results[1];
     }
+
+    document.getElementById('complete').addEventListener('click', function () {
+        var uri = getUrlParameter('uri', document.location.href);
+        $.post("complete", {
+                uri: uri,
+            }, function (data) {
+                 window.location.href = "${contextPath}";
+            });
+
+
+        <%--$.ajax({--%>
+        <%--    type: "POST",--%>
+        <%--    url: "${contextPath}/complete",--%>
+        <%--    uri: uri,--%>
+        <%--    success: function (data) {--%>
+        <%--        window.location.href = "${contextPath}";--%>
+        <%--    },--%>
+        <%--    error: function (e) {--%>
+        <%--        console.log(e);--%>
+        <%--    },--%>
+        <%--});--%>
+    });
 </script>
 </body>
 </html>

@@ -15,6 +15,9 @@ public class File {
     @Column(length = 2000)
     private String url;
 
+    @Column(length = 2000)
+    private String displayName;
+
     private Long startTime;
 
     private Long endTime;
@@ -41,6 +44,14 @@ public class File {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public Long getStartTime() {

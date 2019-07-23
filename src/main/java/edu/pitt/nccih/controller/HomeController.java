@@ -17,9 +17,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.lang.reflect.Type;
@@ -60,9 +60,52 @@ public class HomeController {
         if (Interceptor.ifLoggedIn(session)) {
             User user = userService.findByUsername(session.getAttribute("username").toString());
             model.addAttribute("userFileInfoList", userFileInformation.get(user.getUsername()));
+            if(user.getUncompletedFiles() == null && user.getNextFileToComplete() == null) {
+                ArrayList<String> uncompletedFiles = new ArrayList<>();
+                for(UserFileInfo userFileInfo : userFileInformation.get(user.getUsername())) {
+                    uncompletedFiles.add(userFileInfo.getFilename());
+                }
+                String nextFileToComplete = uncompletedFiles.get(0);
+                uncompletedFiles.remove(0);
+                user.setNextFileToComplete(nextFileToComplete);
+                user.setUncompletedFiles(uncompletedFiles);
+                userService.update(user);
+            }
+            model.addAttribute("nextFileToComplete", user.getNextFileToComplete());
+            model.addAttribute("uncompletedFiles", user.getUncompletedFiles());
         }
 
         return "welcome";
+    }
+
+    @RequestMapping(value = "/complete", method = RequestMethod.POST)
+    @ResponseBody
+    public void markUriAsCompleted(@RequestParam String uri, HttpSession session, HttpServletResponse response) {
+        if (Interceptor.ifLoggedIn(session)) {
+            User user = userService.findByUsername(session.getAttribute("username").toString());
+
+            if (uri.equals(user.getNextFileToComplete())) {
+                ArrayList<String> uncompletedFiles = user.getUncompletedFiles();
+                String nextFileToComplete = uncompletedFiles.get(0);
+                uncompletedFiles.remove(0);
+                user.setNextFileToComplete(nextFileToComplete);
+                user.setUncompletedFiles(uncompletedFiles);
+                userService.update(user);
+            }
+            return;
+        }
+        response.setStatus(401);
+    }
+
+    @GetMapping("/resetFiles")
+    public String resetFiles(HttpSession session) {
+        if (Interceptor.ifLoggedIn(session)) {
+            User user = userService.findByUsername(session.getAttribute("username").toString());
+            user.setNextFileToComplete(null);
+            user.setUncompletedFiles(null);
+            userService.update(user);
+        }
+        return "redirect:/";
     }
 
     @GetMapping("/annotatorTest")
@@ -442,6 +485,7 @@ public class HomeController {
                     UserFileInfo userFileInfo = new UserFileInfo();
                     JsonObject fileObject = userFiles.get(j).getAsJsonObject();
                     userFileInfo.setFilename(fileObject.get("name").getAsString());
+                    userFileInfo.setPublicFilename(fileService.findByUri(fileObject.get("name").getAsString()).getDisplayName());
                     userFileInfo.setHasAssistance(fileObject.get("hasAssistance").getAsBoolean());
                     userFileInfoList.add(userFileInfo);
                 }
@@ -454,15 +498,20 @@ public class HomeController {
 
     public class UserFileInfo {
         private String filename;
+        private String publicFilename;
         private boolean hasAssistance;
 
         public String getFilename() {
             return filename;
         }
 
+        public String getPublicFilename() {return publicFilename;}
+
         public void setFilename(String filename) {
             this.filename = filename;
         }
+
+        public void setPublicFilename(String publicFilename) {this.publicFilename = publicFilename;}
 
         public boolean isHasAssistance() {
             return hasAssistance;
