@@ -85,7 +85,13 @@
 
 <script>
     var annotator;
+    var currentTimeStamp;
+    var wordDifficultyFilter = ['moderate', 'hard'];
+    var englishPhraseFilter = 'visible';
+    var sciencePhraseFilter = 'visible';
+
     $(document).ready(function () {
+        currentTimeStamp = new Date().toLocaleString();
         var uri = getUrlParameter('uri', document.location.href);
         if (uri == null || uri == undefined) {
             uri = 'default';
@@ -257,25 +263,15 @@
     }
 
     document.getElementById('complete').addEventListener('click', function () {
-        var uri = getUrlParameter('uri', document.location.href);
-        $.post("complete", {
-                uri: uri,
-            }, function (data) {
-                 window.location.href = "${contextPath}";
-            });
-
-
-        <%--$.ajax({--%>
-        <%--    type: "POST",--%>
-        <%--    url: "${contextPath}/complete",--%>
-        <%--    uri: uri,--%>
-        <%--    success: function (data) {--%>
-        <%--        window.location.href = "${contextPath}";--%>
-        <%--    },--%>
-        <%--    error: function (e) {--%>
-        <%--        console.log(e);--%>
-        <%--    },--%>
-        <%--});--%>
+        var c = confirm('Are you sure you are finished viewing this page?');
+        if(c == true) {
+            var uri = getUrlParameter('uri', document.location.href);
+            $.post("complete", {
+                    uri: uri,
+                }, function (data) {
+                     window.location.href = "${contextPath}";
+                });
+        }
     });
 </script>
 </body>

@@ -1,6 +1,7 @@
 package edu.pitt.nccih.controller;
 
 import edu.pitt.nccih.GlobalConstants;
+import edu.pitt.nccih.auth.model.Role;
 import edu.pitt.nccih.auth.model.User;
 import edu.pitt.nccih.auth.service.UserService;
 import edu.pitt.nccih.models.Annotation;
@@ -17,9 +18,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.File;
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import java.time.ZoneId;
+import java.util.*;
 
 @Controller
 @RequestMapping("/annotation")
@@ -65,15 +67,21 @@ public class AnnotatorController {
 
     @RequestMapping(value = "/trackAnnotation", method = RequestMethod.POST)
     @ResponseBody
-    public void trackAnnotation(@RequestParam int annotationId, @RequestParam double time, HttpSession session, HttpServletResponse response) {
+    public void trackAnnotation(@RequestParam int annotationId, @RequestParam Date pageLoadTime, @RequestParam Date annotationClickTime, @RequestParam String wordDifficultyFilter, @RequestParam String englishPhraseFilter, @RequestParam String sciencePhraseFilter, HttpSession session, HttpServletResponse response) {
         if (Interceptor.ifLoggedIn(session)) {
             User user = userService.findByUsername(session.getAttribute("username").toString());
+            String[] difficultyArray = wordDifficultyFilter.replace("\"", "").replaceAll("\\[|\\]", "").split(",");
+            ArrayList<String> difficultyArrayList = new ArrayList<String>(Arrays.asList(difficultyArray));
+
             Annotation annotation = annotationService.findById(Long.valueOf(annotationId));
             AnnotationTracker annotationTracker = new AnnotationTracker();
             annotationTracker.setUser(user);
             annotationTracker.setAnnotation(annotation);
-            annotationTracker.setTimeToClick(time);
-
+            annotationTracker.setPageLoadTime(Instant.ofEpochMilli(pageLoadTime.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime());
+            annotationTracker.setAnnotationClickTime(Instant.ofEpochMilli(annotationClickTime.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime());
+            annotationTracker.setWordDifficultyFilter(difficultyArrayList);
+            annotationTracker.setEnglishPhraseFilter(englishPhraseFilter);
+            annotationTracker.setSciencePhraseFilter(sciencePhraseFilter);
             annotationTrackerRepository.save(annotationTracker);
 
             return;
@@ -194,5 +202,14 @@ public class AnnotatorController {
         }
         //access denied
         response.setStatus(401);
+    }
+
+    public static boolean isUserEditor(User user) {
+        for (Role role : user.getRoles()) {
+            if (role.getName().equals("Editor")) {
+                return true;
+            }
+        }
+        return false;
     }
 }

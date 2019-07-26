@@ -1220,10 +1220,15 @@
             $('#annotation-definition').append(quote);
             $('#annotation-definition').append(comment);
 
+            var difficultyFilter = JSON.stringify(wordDifficultyFilter);
             //track annotation
             $.post("annotation/trackAnnotation", {
-                time: performance.now(),
+                pageLoadTime: currentTimeStamp,
+                annotationClickTime: new Date().toLocaleString(),
                 annotationId: annotations[0].id,
+                wordDifficultyFilter: difficultyFilter,
+                englishPhraseFilter: englishPhraseFilter,
+                sciencePhraseFilter: sciencePhraseFilter,
                 async: false,
             }, function (data) {
             });

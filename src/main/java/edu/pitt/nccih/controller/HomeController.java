@@ -4,14 +4,12 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import edu.pitt.nccih.auth.model.Role;
 import edu.pitt.nccih.auth.model.User;
 import edu.pitt.nccih.auth.service.UserService;
-import edu.pitt.nccih.models.Annotation;
-import edu.pitt.nccih.models.EnglishPhrase;
 import edu.pitt.nccih.models.File;
-import edu.pitt.nccih.models.Range;
+import edu.pitt.nccih.models.*;
 import edu.pitt.nccih.service.AnnotationService;
+import edu.pitt.nccih.service.AnnotationTrackerService;
 import edu.pitt.nccih.service.FileService;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static edu.pitt.nccih.controller.AnnotatorController.ANNOTATOR_DIR;
+import static edu.pitt.nccih.controller.AnnotatorController.isUserEditor;
 
 @Controller
 public class HomeController {
@@ -49,6 +48,9 @@ public class HomeController {
     private AnnotationService annotationService;
 
     @Autowired
+    private AnnotationTrackerService annotationTrackerService;
+
+    @Autowired
     private FileService fileService;
 
     @GetMapping("/")
@@ -60,9 +62,9 @@ public class HomeController {
         if (Interceptor.ifLoggedIn(session)) {
             User user = userService.findByUsername(session.getAttribute("username").toString());
             model.addAttribute("userFileInfoList", userFileInformation.get(user.getUsername()));
-            if(user.getUncompletedFiles() == null && user.getNextFileToComplete() == null) {
+            if (user.getUncompletedFiles() == null && user.getNextFileToComplete() == null) {
                 ArrayList<String> uncompletedFiles = new ArrayList<>();
-                for(UserFileInfo userFileInfo : userFileInformation.get(user.getUsername())) {
+                for (UserFileInfo userFileInfo : userFileInformation.get(user.getUsername())) {
                     uncompletedFiles.add(userFileInfo.getFilename());
                 }
                 String nextFileToComplete = uncompletedFiles.get(0);
@@ -73,9 +75,14 @@ public class HomeController {
             }
             model.addAttribute("nextFileToComplete", user.getNextFileToComplete());
             model.addAttribute("uncompletedFiles", user.getUncompletedFiles());
+            if(isUserEditor(user)) {
+                model.addAttribute("isEditor", true);
+            }
+            return "welcome";
+        } else {
+            return "redirect:/login";
         }
 
-        return "welcome";
     }
 
     @RequestMapping(value = "/complete", method = RequestMethod.POST)
@@ -106,6 +113,24 @@ public class HomeController {
             userService.update(user);
         }
         return "redirect:/";
+    }
+
+    @GetMapping("/analytics")
+    public String analytics(Model model, HttpSession session) {
+        if (Interceptor.ifLoggedIn(session)) {
+            User user = userService.findByUsername(session.getAttribute("username").toString());
+            if (isUserEditor(user)) {
+                List<AnnotationTracker> annotationTrackers = annotationTrackerService.findAll();
+                model.addAttribute("annotationTrackers", annotationTrackers);
+                model.addAttribute("isEditor", true);
+
+                return "analytics";
+            } else {
+                return "unauthorizedRequest";
+            }
+        }
+
+        return "unauthorizedRequest";
     }
 
     @GetMapping("/annotatorTest")
@@ -154,14 +179,12 @@ public class HomeController {
 
             if (Interceptor.ifLoggedIn(session)) {
                 User user = userService.findByUsername(session.getAttribute("username").toString());
-                for (Role role : user.getRoles()) {
-                    if (role.getName().equals("Editor")) {
-                        model.addAttribute("readOnly", false);
-                        break;
-                    } else {
-                        model.addAttribute("readOnly", true);
-                    }
+                if (isUserEditor(user)) {
+                    model.addAttribute("readOnly", false);
+                } else {
+                    model.addAttribute("readOnly", true);
                 }
+
             } else {
                 model.addAttribute("readOnly", true);
             }
@@ -505,13 +528,17 @@ public class HomeController {
             return filename;
         }
 
-        public String getPublicFilename() {return publicFilename;}
+        public String getPublicFilename() {
+            return publicFilename;
+        }
 
         public void setFilename(String filename) {
             this.filename = filename;
         }
 
-        public void setPublicFilename(String publicFilename) {this.publicFilename = publicFilename;}
+        public void setPublicFilename(String publicFilename) {
+            this.publicFilename = publicFilename;
+        }
 
         public boolean isHasAssistance() {
             return hasAssistance;
