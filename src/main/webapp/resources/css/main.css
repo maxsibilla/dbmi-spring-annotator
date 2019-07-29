@@ -51,16 +51,16 @@ body {
     text-align: center;
 }
 
-video::cue {
+#main-video::cue {
     opacity: 0;
     background-color: transparent;
     font-size: 0px !important;
 }
 
 /*move the subtitles out of frame*/
-video::-webkit-media-text-track-container {
- overflow: visible !important;
- transform: translateY(100%) !important;
+#main-video::-webkit-media-text-track-container {
+    overflow: visible !important;
+    transform: translateY(100%) !important;
 }
 
 .legend-large {
@@ -115,4 +115,16 @@ video::-webkit-media-text-track-container {
     height: 15px;
     background-color: #ccc;
     border: 1px solid #000;
+}
+
+#annotation-video {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+#carouselControls {
+    align-items: center;
+    justify-content: center;
+    display: flex;
 }

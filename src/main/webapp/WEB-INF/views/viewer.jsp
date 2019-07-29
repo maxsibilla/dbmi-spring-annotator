@@ -112,24 +112,19 @@
         });
         </c:if>
 
-
-        $('#content').jqxPanel({width: '100%', height: '100%'});
-        $('#main-splitter').jqxSplitter({
-            width: '100%',
-            height: '100%',
-            orientation: 'horizontal',
-            panels: [{size: '66%', collapsible: false}, {size: '34%', collapsible: true}]
-        });
-        $('#main-splitter').jqxSplitter('collapse');
-
-
-        // testing
+        // to add pre annotations
         <c:if test="${addPreAnnotation}">
         <c:forEach items="${phrases}" var="entry">
-        createDynamicAnnotation("${entry.key}", "${entry.value}", uri);
+            createDynamicPreAnnotation("${entry.key}", "${entry.value}", uri);
         </c:forEach>
         </c:if>
 
+        //to add annotations
+         <c:if test="${addAnnotation}">
+        <c:forEach items="${annotations}" var="annotation">
+            createDynamicAnnotation("${annotation.quote}", "${annotation.text}", "${annotation.video}", "${annotation.figure}", "${annotation.wordDifficulty}", uri);
+        </c:forEach>
+        </c:if>
 
         var video = document.getElementById('main-video');
         var startTime;
@@ -152,18 +147,31 @@
             </c:otherwise>
         </c:choose>
 
-        video.addEventListener('timeupdate', function () {
-            if (!video.seeking) {
-                supposedCurrentTime = video.currentTime;
-            }
+        if($("#main-video").length) {
+
+            video.addEventListener('timeupdate', function () {
+                if (!video.seeking) {
+                    supposedCurrentTime = video.currentTime;
+                }
+            });
+            // prevent user from seeking
+            video.addEventListener('seeking', function () {
+                if (video.currentTime > endTime || video.currentTime < startTime) {
+                    console.log("Seeking is disabled");
+                    video.currentTime = supposedCurrentTime;
+                }
+            });
+        }
+
+
+        $('#content').jqxPanel({width: '100%', height: '100%'});
+        $('#main-splitter').jqxSplitter({
+            width: '100%',
+            height: '100%',
+            orientation: 'horizontal',
+            panels: [{size: '66%', collapsible: false}, {size: '34%', collapsible: true}]
         });
-        // prevent user from seeking
-        video.addEventListener('seeking', function () {
-            if (video.currentTime > endTime || video.currentTime < startTime) {
-                console.log("Seeking is disabled");
-                video.currentTime = supposedCurrentTime;
-            }
-        });
+        $('#main-splitter').jqxSplitter('collapse');
     });
 
     function createAnnotator(uri) {
@@ -199,7 +207,63 @@
         }).annotator('addPlugin', 'HighlightTags', optiontags);
     }
 
-    function createDynamicAnnotation(searchWord, definition, uri) {
+    function createDynamicAnnotation(word, definition, video, figure, difficulty, uri) {
+        console.log("Adding annotation for: " + word);
+        var allElements = Array.from(document.querySelectorAll('.highlighted'))
+        allElements.forEach(function (element) {
+            element.classList.remove('highlighted')
+        });
+        highlightSearchTerms(word, true);
+
+        for (var i = 0; i < document.getElementsByClassName('highlighted').length; i++) {
+            (function (i) {
+                var element = document.getElementsByClassName('highlighted')[i];
+
+                var rootXPath = getXpathOfNode(document.getElementsByClassName('annotator-wrapper')[0]);
+                var xPath = getXpathOfNode(element);
+                xPath = xPath.replace(rootXPath, '').replace('/FONT', '').toLowerCase();
+                xPath = xPath.replace('tbody', 'tbody[1]').replace('td', 'td[1]');
+                xPath = xPath.replace(/]\[.*?\]/g, ']')
+
+                var parentElement = element.parentElement;
+                var startOffset = parentElement.textContent.indexOf(word);
+                var endOffset = startOffset + word.length;
+
+                var annotation = {};
+                var range = {};
+
+                annotation.quote = word;
+                annotation.text = definition;
+                annotation.uri = uri;
+                annotation.wordType = "${preAnnotationType}";
+                annotation.video = video;
+                annotation.figure = figure;
+                range.start = xPath;
+                range.end = xPath;
+                range.startOffset = startOffset;
+                range.endOffset = endOffset;
+                annotation.range = range;
+
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json",
+                    url: "${contextPath}/annotation/newAnnotation",
+                    data: JSON.stringify(annotation),
+                    dataType: 'json',
+                    timeout: 600000,
+                    success: function (data) {
+
+                    },
+                    error: function (e) {
+
+                    }
+                });
+            })(i);
+        }
+    }
+
+
+    function createDynamicPreAnnotation(searchWord, definition, uri) {
         // clear previous search
         console.log("Searching for..." + searchWord);
         var allElements = Array.from(document.querySelectorAll('.highlighted'))

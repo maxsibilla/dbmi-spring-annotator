@@ -11,6 +11,9 @@ import edu.pitt.nccih.models.*;
 import edu.pitt.nccih.service.AnnotationService;
 import edu.pitt.nccih.service.AnnotationTrackerService;
 import edu.pitt.nccih.service.FileService;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -75,7 +78,7 @@ public class HomeController {
             }
             model.addAttribute("nextFileToComplete", user.getNextFileToComplete());
             model.addAttribute("uncompletedFiles", user.getUncompletedFiles());
-            if(isUserEditor(user)) {
+            if (isUserEditor(user)) {
                 model.addAttribute("isEditor", true);
             }
             return "welcome";
@@ -141,17 +144,30 @@ public class HomeController {
     @GetMapping("/view")
     public String view(@RequestParam String uri, @RequestParam boolean showAnnotator, Model model, HttpSession session) {
         try {
-            //To create pre-annotation set variable "preAnnotationType" to the proper tag this will be creating (enlgish or scientific) and set model attribute "addPreAnnotation" to true
+            //To create pre-annotation set variable "preAnnotationType" to the proper tag this will be creating (enlgish or scientific) and set model attribute "addPreAnnotation" to true. The file will be a JSON file produced by metamap for science words and a TXT file of the page for english words. The metamap json file contains the phrases that we need to extract while the english words will be compared against Andy Biemiller Words Worth Teaching Alphabetical and Ratings List. This helps us generate a list of potential words that will later be refined.
 
 //            serializeDefinitions();
 //            serializeEnglishDefinitions();
 
-            Map<String, String> phrases = new HashMap();
-            String preAnnotationType = "english";
-            //json file generated from metamap for scientific phrases. txt file of content for english
-            String preAnnotationFile = "RNAText.txt";
-            String subtitleFile = "RNAText.txt";
+//            Map<String, String> phrases = new HashMap();
+//            String preAnnotationType = "scientific";
+//            String preAnnotationFile = "GeneticCodeJson.json";
+//            String subtitleFile = "GeneticCodeText.txt";
 //            createPreAnnotations(phrases, preAnnotationType, preAnnotationFile, subtitleFile, uri);
+//            model.addAttribute("phrases", phrases);
+//            model.addAttribute("addPreAnnotation", true);
+
+//            List<Annotation> annotations = new ArrayList<>();
+//            String annotationFile = "organellePreAnnotationScience.csv";
+//            String preAnnotationType = "scientific";
+//            createAnnotations(annotations, annotationFile);
+//            model.addAttribute("annotations", annotations);
+//            model.addAttribute("addAnnotation", false);
+
+//            createSubtitlePreAnnotations(phrases, preAnnotationType, subtitleFile, uri);
+
+
+//            model.addAttribute("preAnnotationType", preAnnotationType);
 
             //load html file into page
             File file = fileService.findByUri(uri);
@@ -188,9 +204,6 @@ public class HomeController {
             } else {
                 model.addAttribute("readOnly", true);
             }
-            model.addAttribute("preAnnotationType", preAnnotationType);
-            model.addAttribute("addPreAnnotation", false);
-            model.addAttribute("phrases", phrases);
             model.addAttribute("fileContents", contents);
             model.addAttribute("uri", uri);
             return "viewer";
@@ -253,18 +266,18 @@ public class HomeController {
                     startTime = decimalFormat.format(Double.valueOf(startTime));
                 } else {
                     fullLine += line;
-                    for (String word : line.split("\\s+")) {
-                        if (phrases.containsKey(word)) {
+                    for (Map.Entry<String, String> entry : phrases.entrySet()) {
+                        if (line.contains(entry.getKey())) {
                             Annotation annotation = new Annotation();
                             Range range = new Range();
-                            int start = fullLine.indexOf(word);
+                            int start = fullLine.indexOf(entry.getKey());
                             range.setStartOffset(start);
-                            range.setEndOffset(start + word.length());
+                            range.setEndOffset(start + entry.getKey().length());
                             range.setStart("");
                             range.setEnd("");
                             annotation.setRange(range);
-                            annotation.setQuote(word);
-                            annotation.setText(phrases.get(word));
+                            annotation.setQuote(entry.getKey());
+                            annotation.setText(entry.getValue());
                             annotation.setUri(uri + startTime);
 
                             LocalDateTime localDateTime = LocalDateTime.now();
@@ -274,13 +287,12 @@ public class HomeController {
 
                             if (preAnnotationType.equals("english")) {
                                 annotation.setTags(new String[]{"english"});
-                                annotation.setWordDifficulty(englishDefinitions.get(word).getDifficulty());
+                                annotation.setWordDifficulty(englishDefinitions.get(entry.getKey()).getDifficulty());
                             } else {
                                 annotation.setTags(new String[]{"scientific"});
                             }
 
                             annotationService.save(annotation);
-
                         }
                     }
                 }
@@ -493,6 +505,39 @@ public class HomeController {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    private void createAnnotations(List<Annotation> annotations, String annotationFile) {
+        if (definitions == null) {
+            definitions = deserializeDefinitions();
+        }
+        if (englishDefinitions == null) {
+            englishDefinitions = deserializeEnglishDefinitions();
+        }
+
+        String csvFile = ANNOTATOR_DIR + "pre-annotation/" + annotationFile;
+
+        try (
+                Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(csvFile), "utf-8"));
+                CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT
+                        .withHeader("word", "definition", "video", "image", "difficulty")
+                        .withIgnoreHeaderCase()
+                        .withSkipHeaderRecord()
+                        .withTrim());) {
+
+            for (CSVRecord csvRecord : csvParser) {
+                Annotation annotation = new Annotation();
+                annotation.setQuote(csvRecord.get("word"));
+                annotation.setText(csvRecord.get("definition"));
+                annotation.setVideo(csvRecord.get("video"));
+                annotation.setFigure(csvRecord.get("image"));
+
+                annotations.add(annotation);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

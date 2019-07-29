@@ -23,15 +23,15 @@ function doHighlight(bodyText, searchTerm, highlightStartTag, highlightEndTag) {
             bodyText = "";
         } else {
             // skip anything inside an HTML tag
-            if (bodyText.lastIndexOf(">", i) >= bodyText.lastIndexOf("<", i)) {
+            // if (bodyText.lastIndexOf(">", i) >= bodyText.lastIndexOf("<", i)) {
                 // skip anything inside a <script> block
-                if (lcBodyText.lastIndexOf("/script>", i) >= lcBodyText.lastIndexOf("<script", i)) {
+                // if (lcBodyText.lastIndexOf("/script>", i) >= lcBodyText.lastIndexOf("<script", i)) {
                     newText += bodyText.substring(0, i) + highlightStartTag + bodyText.substr(i, searchTerm.length) + highlightEndTag;
                     bodyText = bodyText.substr(i + searchTerm.length);
                     lcBodyText = bodyText.toLowerCase();
                     i = -1;
-                }
-            }
+                // }
+            // }
         }
     }
 

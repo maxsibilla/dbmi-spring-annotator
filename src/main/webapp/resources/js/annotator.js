@@ -1089,7 +1089,7 @@
                 cssClass = "annotator-hl"
             }
             white = /^\s*$/;
-            hl = $("<span class='" + cssClass + "'></span>");
+            hl = $("<b class='" + cssClass + "'></b>");
             _ref1 = normedRange.textNodes();
             _results = [];
             for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
@@ -1238,16 +1238,35 @@
                 var figures = annotations[0].figure.split(",");
                 if (figures) {
                     for (var i = 0; i < figures.length; i++) {
-                        var carouselItem = document.createElement("div");
-                        carouselItem.classList.add('carousel-item');
-                        if (i == 0) {
+                        if(resourceExists("/annotator-file-dir/figures/" + figures[i])) {
+                            var carouselItem = document.createElement("div");
+                            carouselItem.classList.add('carousel-item');
+                            if (i == 0) {
+                                carouselItem.classList.add('active');
+                            }
+                            var figure = document.createElement('img');
+                            figure.src = "/annotator-file-dir/figures/" + figures[i];
+                            figure.classList.add('d-block');
+                            carouselItem.appendChild(figure);
+                            $('#annotation-figure').append(carouselItem);
+                        } else {
+                            var carouselItem = document.createElement("div");
+                            carouselItem.classList.add('carousel-item');
                             carouselItem.classList.add('active');
+                            var carouselCaption = document.createElement("div");
+                            carouselCaption.classList.add('carousel-caption');
+                            carouselCaption.classList.add('d-none');
+                            carouselCaption.classList.add('d-md-block');
+                            var figure = document.createElement('img');
+                            figure.src = "/annotator-file-dir/figures/blank.png";
+                            figure.classList.add('d-block');
+                            var h4 = document.createElement('h4');
+                            h4.appendChild(document.createTextNode('There is no image available at this time.'));
+                            carouselCaption.append(h4);
+                            carouselItem.appendChild(figure);
+                            carouselItem.append(carouselCaption);
+                            $('#annotation-figure').append(carouselItem);
                         }
-                        var figure = document.createElement('img');
-                        figure.src = "/annotator-file-dir/figures/" + figures[i];
-                        figure.classList.add('d-block');
-                        carouselItem.appendChild(figure);
-                        $('#annotation-figure').append(carouselItem);
                     }
                 }
             } catch (e) {
@@ -1257,22 +1276,31 @@
             try {
                 var videoComponents = annotations[0].video.split(",");
                 if (videoComponents) {
-                    var video = document.createElement('video');
-                    video.controls = "controls";
-                    video.width = "320";
-                    video.height = "240";
-                    var source = document.createElement("source");
-                    source.src = "/annotator-file-dir/videos/" + videoComponents[0];
-                    var track = document.createElement('track');
-                    track.default="default";
-                    track.src = "/annotator-file-dir/videos/" + videoComponents[1];
-                    track.kind = "subtitles";
-                    track.srclang = "en";
-                    track.label = "English";
-                    video.appendChild(source);
-                    video.appendChild(track);
-                    video.classList.add('figure-img');
-                    $('#annotation-video').append(video);
+                    if (resourceExists("/annotator-file-dir/videos/" + videoComponents[0])) {
+                        var video = document.createElement('video');
+                        video.controls = "controls";
+                        video.width = "320";
+                        video.height = "240";
+                        var source = document.createElement("source");
+                        source.src = "/annotator-file-dir/videos/" + videoComponents[0];
+                        if (resourceExists("/annotator-file-dir/videos/" + videoComponents[1])) {
+                            var track = document.createElement('track');
+                            track.default = "default";
+                            track.src = "/annotator-file-dir/videos/" + videoComponents[1];
+                            track.kind = "subtitles";
+                            track.srclang = "en";
+                            track.label = "English";
+                            video.appendChild(track);
+                        }
+                        video.classList.add('figure-img');
+                        video.appendChild(source);
+                        $('#annotation-video').append(video);
+                    } else {
+                        var h4 = document.createElement('h4');
+                        h4.appendChild(document.createTextNode('There is no video available at this time.'));
+                        $('#annotation-video').append(h4);
+
+                    }
                 }
             } catch (e) {}
 
@@ -3038,3 +3066,14 @@
 }.call(this);
 //
 //# sourceMappingURL=annotator-full.min.map
+
+function resourceExists(resource_name){
+
+    var http = new XMLHttpRequest();
+
+    http.open('HEAD', resource_name, false);
+    http.send();
+
+    return http.status != 404;
+
+}
