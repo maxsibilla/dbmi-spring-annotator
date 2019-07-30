@@ -58,7 +58,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Model model, HttpSession session) {
-        if (userFileInformation == null) {
+        if (userFileInformation == null || userFileInformation.size() == 0) {
             userFileInformation = new HashMap<>();
             createUserFileInformation();
         }
@@ -68,7 +68,9 @@ public class HomeController {
             if (user.getUncompletedFiles() == null && user.getNextFileToComplete() == null) {
                 ArrayList<String> uncompletedFiles = new ArrayList<>();
                 for (UserFileInfo userFileInfo : userFileInformation.get(user.getUsername())) {
+                    uncompletedFiles.add("preTest" + userFileInfo.getFilename());
                     uncompletedFiles.add(userFileInfo.getFilename());
+                    uncompletedFiles.add("postTest" + userFileInfo.getFilename());
                 }
                 String nextFileToComplete = uncompletedFiles.get(0);
                 uncompletedFiles.remove(0);
@@ -157,17 +159,16 @@ public class HomeController {
 //            model.addAttribute("phrases", phrases);
 //            model.addAttribute("addPreAnnotation", true);
 
-//            List<Annotation> annotations = new ArrayList<>();
-//            String annotationFile = "organellePreAnnotationScience.csv";
-//            String preAnnotationType = "scientific";
-//            createAnnotations(annotations, annotationFile);
-//            model.addAttribute("annotations", annotations);
-//            model.addAttribute("addAnnotation", false);
+            List<Annotation> annotations = new ArrayList<>();
+            String annotationFile = "organellePreAnnotationScience.csv";
+            String preAnnotationType = "scientific";
+            createAnnotations(annotations, annotationFile);
+            model.addAttribute("annotations", annotations);
+            model.addAttribute("addAnnotation", false);
 
 //            createSubtitlePreAnnotations(phrases, preAnnotationType, subtitleFile, uri);
 
-
-//            model.addAttribute("preAnnotationType", preAnnotationType);
+            model.addAttribute("preAnnotationType", preAnnotationType);
 
             //load html file into page
             File file = fileService.findByUri(uri);
@@ -553,7 +554,10 @@ public class HomeController {
                     UserFileInfo userFileInfo = new UserFileInfo();
                     JsonObject fileObject = userFiles.get(j).getAsJsonObject();
                     userFileInfo.setFilename(fileObject.get("name").getAsString());
-                    userFileInfo.setPublicFilename(fileService.findByUri(fileObject.get("name").getAsString()).getDisplayName());
+                    String displayName = fileService.findByUri(fileObject.get("name").getAsString()).getDisplayName();
+                    userFileInfo.setPublicFilename(displayName);
+                    userFileInfo.setPreTest(fileObject.get("preTest").getAsString());
+                    userFileInfo.setPostTest(fileObject.get("postTest").getAsString());
                     userFileInfo.setHasAssistance(fileObject.get("hasAssistance").getAsBoolean());
                     userFileInfoList.add(userFileInfo);
                 }
@@ -567,6 +571,8 @@ public class HomeController {
     public class UserFileInfo {
         private String filename;
         private String publicFilename;
+        private String preTest;
+        private String postTest;
         private boolean hasAssistance;
 
         public String getFilename() {
@@ -591,6 +597,22 @@ public class HomeController {
 
         public void setHasAssistance(boolean hasAssistance) {
             this.hasAssistance = hasAssistance;
+        }
+
+        public String getPreTest() {
+            return preTest;
+        }
+
+        public void setPreTest(String preTest) {
+            this.preTest = preTest;
+        }
+
+        public String getPostTest() {
+            return postTest;
+        }
+
+        public void setPostTest(String postTest) {
+            this.postTest = postTest;
         }
     }
 }

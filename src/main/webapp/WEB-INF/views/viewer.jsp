@@ -77,7 +77,7 @@
         <br>
         <button id="show-legend" class="btn btn-secondary btn-xs" onclick="toggleLegend('show')">Show Legend</button>
         <div id="main-legend" class="legend display-none">
-            <button id="legend-button" class="btn btn-outline-dark btn-xs" onclick="toggleLegend('hide')">Hide</button>
+            <button id="legend-button" class="btn btn-secondary btn-xs" onclick="toggleLegend('hide')">Hide</button>
             <myTags:legendTable/>
         </div>
     </div>
@@ -223,6 +223,7 @@
                 var xPath = getXpathOfNode(element);
                 xPath = xPath.replace(rootXPath, '').replace('/FONT', '').toLowerCase();
                 xPath = xPath.replace('tbody', 'tbody[1]').replace('td', 'td[1]');
+                xPath = xPath.replace(/td\[.*?\]\[/g, 'td[');
                 xPath = xPath.replace(/]\[.*?\]/g, ']')
 
                 var parentElement = element.parentElement;

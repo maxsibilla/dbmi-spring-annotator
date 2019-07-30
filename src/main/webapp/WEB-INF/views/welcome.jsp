@@ -25,8 +25,21 @@
                         <c:param name="showAnnotator" value="${hasAssistance}"/>
                     </c:url>
 
+                    <c:set var="preTest" value="preTest${userFileInfo.filename}"/>
+                    <c:set var="postTest" value="postTest${userFileInfo.filename}"/>
+
                     <h5 class="card-title">${userFileInfo.publicFilename}</h5>
-                <%--                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>--%>
+
+                    <button value="${userFileInfo.preTest}" id="${preTest}" onclick="markComplete(this.value, this.id)"
+                            class="btn btn-primary
+                        <c:forEach items="${uncompletedFiles}" var="file" varStatus="status">
+                            <c:if test="${file eq preTest}">
+                                disabled btn-secondary
+                            </c:if>
+                        </c:forEach>
+                     ">Pre-Test
+                    </button>
+
                     <a href="${url}" class="btn btn-primary
                         <c:forEach items="${uncompletedFiles}" var="file" varStatus="status">
                             <c:if test="${file eq userFileInfo.filename}">
@@ -34,11 +47,32 @@
                             </c:if>
                         </c:forEach>
                      ">View</a>
+
+                    <button value="${userFileInfo.postTest}" id="${postTest}"
+                            onclick="markComplete(this.value, this.id)" class="btn btn-primary
+                        <c:forEach items="${uncompletedFiles}" var="file" varStatus="status">
+                            <c:if test="${file eq postTest}">
+                                disabled btn-secondary
+                            </c:if>
+                        </c:forEach>
+                     ">Post-Test
+                    </button>
                 </div>
             </div>
             <br>
         </c:forEach>
     </div>
+
+    <script>
+        function markComplete(testUrl, uri) {
+            $.post("complete", {
+                uri: uri,
+            }, function () {
+                window.open(testUrl, "_blank");
+                location.reload();
+            });
+        }
+    </script>
 </main>
 </body>
 </html>
