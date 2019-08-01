@@ -160,13 +160,14 @@ public class HomeController {
 //            model.addAttribute("addPreAnnotation", true);
 
             List<Annotation> annotations = new ArrayList<>();
-            String annotationFile = "organellePreAnnotationScience.csv";
-            String preAnnotationType = "scientific";
+            String annotationFile = "punnettPreAnnotationEnglish.csv";
+            String preAnnotationType = "english";
             createAnnotations(annotations, annotationFile);
             model.addAttribute("annotations", annotations);
             model.addAttribute("addAnnotation", false);
 
-//            createSubtitlePreAnnotations(phrases, preAnnotationType, subtitleFile, uri);
+//            String subtitleFile = "GeneticCodeText.txt";
+//            createSubtitlePreAnnotations(annotations, preAnnotationType, subtitleFile, uri);
 
             model.addAttribute("preAnnotationType", preAnnotationType);
 
@@ -212,36 +213,36 @@ public class HomeController {
             return "resourceNotFound";
         }
     }
+//
+//    private void createPreAnnotations(Map<String, String> phrases, String preAnnotationType, String preAnnotationFile, String subtitleFile, String uri) throws IOException, ParseException {
+//        if (definitions == null) {
+//            definitions = deserializeDefinitions();
+//        }
+//        if (englishDefinitions == null) {
+//            englishDefinitions = deserializeEnglishDefinitions();
+//        }
+//        List<String> acceptedSemanticTypes = new ArrayList<>();
+//        List<String[]> reportData = new ArrayList<>();
+//
+//        if (preAnnotationType.equals("scientific")) {
+//            reportData.add(new String[]{"Word", "Definition", "CUI", "Semantic Type", "Terminology"});
+//            buildAcceptedSemanticTypesList(acceptedSemanticTypes);
+//            getPhrasesFromJson(phrases, acceptedSemanticTypes, reportData, preAnnotationFile);
+//        }
+//
+//        if (preAnnotationType.equals("english")) {
+//            reportData.add(new String[]{"Word", "Definition", "Rating"});
+//            getPhrasesFromEnglishWordListing(phrases, reportData, preAnnotationFile);
+//        }
+//
+////        if (subtitleFile != null) {
+////            createSubtitlePreAnnotations(phrases, preAnnotationType, subtitleFile, uri);
+////        }
+//
+//        writeReport(reportData);
+//    }
 
-    private void createPreAnnotations(Map<String, String> phrases, String preAnnotationType, String preAnnotationFile, String subtitleFile, String uri) throws IOException, ParseException {
-        if (definitions == null) {
-            definitions = deserializeDefinitions();
-        }
-        if (englishDefinitions == null) {
-            englishDefinitions = deserializeEnglishDefinitions();
-        }
-        List<String> acceptedSemanticTypes = new ArrayList<>();
-        List<String[]> reportData = new ArrayList<>();
-
-        if (preAnnotationType.equals("scientific")) {
-            reportData.add(new String[]{"Word", "Definition", "CUI", "Semantic Type", "Terminology"});
-            buildAcceptedSemanticTypesList(acceptedSemanticTypes);
-            getPhrasesFromJson(phrases, acceptedSemanticTypes, reportData, preAnnotationFile);
-        }
-
-        if (preAnnotationType.equals("english")) {
-            reportData.add(new String[]{"Word", "Definition", "Rating"});
-            getPhrasesFromEnglishWordListing(phrases, reportData, preAnnotationFile);
-        }
-
-        if (subtitleFile != null) {
-            createSubtitlePreAnnotations(phrases, preAnnotationType, subtitleFile, uri);
-        }
-
-        writeReport(reportData);
-    }
-
-    private void createSubtitlePreAnnotations(Map<String, String> phrases, String preAnnotationType, String subtitleFile, String uri) throws IOException, ParseException {
+    private void createSubtitlePreAnnotations(List<Annotation> annotations, String preAnnotationType, String subtitleFile, String uri) throws IOException, ParseException {
         BufferedReader reader;
 
         try {
@@ -267,33 +268,37 @@ public class HomeController {
                     startTime = decimalFormat.format(Double.valueOf(startTime));
                 } else {
                     fullLine += line;
-                    for (Map.Entry<String, String> entry : phrases.entrySet()) {
-                        if (line.contains(entry.getKey())) {
-                            Annotation annotation = new Annotation();
+                    for (Annotation annotation : annotations) {
+                        if (line.contains(annotation.getQuote())) {
+                            Annotation newAnnotation = new Annotation();
+                            newAnnotation.setQuote(annotation.getQuote());
+                            newAnnotation.setText(annotation.getText());
+                            newAnnotation.setFigure(annotation.getFigure());
+                            newAnnotation.setVideo(annotation.getVideo());
                             Range range = new Range();
-                            int start = fullLine.indexOf(entry.getKey());
+                            int start = fullLine.indexOf(newAnnotation.getQuote());
                             range.setStartOffset(start);
-                            range.setEndOffset(start + entry.getKey().length());
+                            range.setEndOffset(start + newAnnotation.getQuote().length());
                             range.setStart("");
                             range.setEnd("");
-                            annotation.setRange(range);
-                            annotation.setQuote(entry.getKey());
-                            annotation.setText(entry.getValue());
-                            annotation.setUri(uri + startTime);
+                            newAnnotation.setRange(range);
+                            newAnnotation.setUri(uri + startTime);
 
                             LocalDateTime localDateTime = LocalDateTime.now();
-                            annotation.setCreated(localDateTime);
-                            annotation.setUpdated(localDateTime);
-                            annotation.setUser(userService.findByUsername("maxsibilla"));
+                            newAnnotation.setCreated(localDateTime);
+                            newAnnotation.setUpdated(localDateTime);
+                            newAnnotation.setUser(userService.findByUsername("maxsibilla"));
 
                             if (preAnnotationType.equals("english")) {
-                                annotation.setTags(new String[]{"english"});
-                                annotation.setWordDifficulty(englishDefinitions.get(entry.getKey()).getDifficulty());
+                                newAnnotation.setTags(new String[]{"english"});
+                                newAnnotation.setWordType("english");
+                                newAnnotation.setWordDifficulty(englishDefinitions.get(newAnnotation.getQuote()).getDifficulty());
                             } else {
-                                annotation.setTags(new String[]{"scientific"});
+                                newAnnotation.setWordType("scientific");
+                                newAnnotation.setTags(new String[]{"scientific"});
                             }
 
-                            annotationService.save(annotation);
+                            annotationService.save(newAnnotation);
                         }
                     }
                 }

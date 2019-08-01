@@ -128,3 +128,7 @@ body {
     justify-content: center;
     display: flex;
 }
+
+#annotation-definition {
+    margin: 10px;
+}
