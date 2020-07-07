@@ -23,20 +23,21 @@
         <td>
             <div class="form-check-inline">
                 <label class="form-check-label">
-                    <input id="t6-check" type="checkbox" class="form-check-input" value="" checked onclick="showHideWordDifficulty(this.id, 'T6')">Moderate
+                    <input id="t6-check" type="checkbox" class="form-check-input" value="" checked
+                           onclick="showHideWordDifficulty(this.id, 'T6')">Moderate
                 </label>
             </div>
             <div class="form-check-inline">
                 <label class="form-check-label">
-                    <input id="d-check" type="checkbox" class="form-check-input" value="" checked onclick="showHideWordDifficulty(this.id, 'D')">Difficult
+                    <input id="d-check" type="checkbox" class="form-check-input" value="" checked
+                           onclick="showHideWordDifficulty(this.id, 'D')">Difficult
                 </label>
             </div>
         </td>
     </tr>
 
     <tr>
-        <td></td>
-        <td>
+        <td colspan="2" style="text-align:center">
             <button id="hide-scientific-phrases" class="btn btn-outline-dark btn-xxs"
                     onclick="hidePhrases('scientific', this.id, 'show-scientific-phrases')">
                 Hide Scientific Phrases
@@ -58,6 +59,42 @@
         </td>
     </tr>
 
+    <tr>
+        <td colspan="2">
+            Parent concept:
+            <select class="parent-select" multiple="multiple" style="width: 100%">
+                <c:forEach items="${parentConcepts}" var="parentConcept">
+                    <option value="${parentConcept}">${parentConcept}</option>
+                </c:forEach>
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="2">
+            Grandparent concept:
+            <select class="grandparent-select" multiple="multiple" style="width: 100%">
+                <c:forEach items="${grandparentConcepts}" var="grandparentConcept">
+                    <option value="${grandparentConcept}">${grandparentConcept}</option>
+                </c:forEach>
+            </select>
+        </td>
+    </tr>
 
     </tbody>
 </table>
+
+<script>
+    $(document).ready(function () {
+        $('.parent-select').select2();
+        $('.grandparent-select').select2();
+    });
+
+    $('.parent-select').on('change', function (e) {
+        showHideConcept('parent-concept', 'parent-select')
+    });
+
+   $('.grandparent-select').on('change', function (e) {
+        showHideConcept('grandparent-concept', 'grandparent-select')
+    });
+</script>

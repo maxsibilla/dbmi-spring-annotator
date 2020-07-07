@@ -11,6 +11,7 @@
 <link href="${contextPath}/resources/css/auth.css" rel="stylesheet">
 <link href="${contextPath}/resources/css/jqx.base.css" rel="stylesheet">
 <link href="${contextPath}/resources/css/tags-annotator.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet"/>
 <script src="${contextPath}/resources/js/splitter/jqxcore.js"></script>
 <script src="${contextPath}/resources/js/splitter/jqxbuttons.js"></script>
 <script src="${contextPath}/resources/js/splitter/jqxsplitter.js"></script>
@@ -18,6 +19,7 @@
 <script src="${contextPath}/resources/js/splitter/jqxscrollbar.js"></script>
 <script src="${contextPath}/resources/js/searchhighlight.js"></script>
 <script src="${contextPath}/resources/js/tags-annotator.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
 <body>
 <%--<myTags:navbar></myTags:navbar>--%>
 <div id="main-splitter" class="main-splitter">
@@ -43,29 +45,33 @@
         </c:if>
 
     </div>
-    <div id="new-annotator-viewer">
-        <div id="annotation-definition">
+    <div>
+        <div id="new-annotator-viewer">
+            <div id="annotation-definition">
 
-        </div>
-        <div id="nested-viewer">
-            <div id="carouselControls" class="carousel slide" data-ride="carousel">
-                <div class="carousel-inner" id="annotation-figure">
-
-                </div>
-                <a class="carousel-control-prev" href="#carouselControls" role="button"
-                   data-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Previous</span>
-                </a>
-                <a class="carousel-control-next" href="#carouselControls" role="button"
-                   data-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Next</span>
-                </a>
             </div>
+            <div>
+                <div id="nested-viewer">
+                    <div id="carouselControls" class="carousel slide" data-ride="carousel">
+                        <div class="carousel-inner" id="annotation-figure">
 
-            <div id="annotation-video">
+                        </div>
+                        <a class="carousel-control-prev" href="#carouselControls" role="button"
+                           data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#carouselControls" role="button"
+                           data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
 
+                    <div id="annotation-video">
+
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -75,7 +81,7 @@
     <div class="legend-large d-none d-sm-block">
         <button class="btn btn-secondary btn-xs" id="complete">Complete</button>
         <br>
-        <button id="show-legend" class="btn btn-secondary btn-xs" onclick="toggleLegend('show')">Show Legend</button>
+        <button id="show-legend" class="btn btn-secondary btn-xs" onclick="toggleLegend('show')">Show Toolbox</button>
         <div id="main-legend" class="legend display-none">
             <button id="legend-button" class="btn btn-secondary btn-xs" onclick="toggleLegend('hide')">Hide</button>
             <myTags:legendTable/>
@@ -115,14 +121,14 @@
         // to add pre annotations
         <c:if test="${addPreAnnotation}">
         <c:forEach items="${phrases}" var="entry">
-            createDynamicPreAnnotation("${entry.key}", "${entry.value}", uri);
+        createDynamicPreAnnotation("${entry.key}", "${entry.value}", uri);
         </c:forEach>
         </c:if>
 
         //to add annotations
-         <c:if test="${addAnnotation}">
+        <c:if test="${addAnnotation}">
         <c:forEach items="${annotations}" var="annotation">
-            createDynamicAnnotation("${annotation.quote}", "${annotation.text}", "${annotation.video}", "${annotation.figure}", "${annotation.wordDifficulty}", uri);
+        createDynamicAnnotation("${annotation.quote}", "${annotation.parentConcept}", "${annotation.grandparentConcept}", "${annotation.text}", "${annotation.video}", "${annotation.figure}", "${annotation.wordDifficulty}", uri);
         </c:forEach>
         </c:if>
 
@@ -130,24 +136,24 @@
         var startTime;
         var endTime;
         <c:choose>
-            <c:when test="${not empty startTime}">
-                startTime = ${startTime};
-            </c:when>
-            <c:otherwise>
-                startTime = 0;
-            </c:otherwise>
+        <c:when test="${not empty startTime}">
+        startTime = ${startTime};
+        </c:when>
+        <c:otherwise>
+        startTime = 0;
+        </c:otherwise>
         </c:choose>
 
         <c:choose>
-            <c:when test="${not empty endTime}">
-                endTime = ${endTime};
-            </c:when>
-            <c:otherwise>
-                endTime = 0;
-            </c:otherwise>
+        <c:when test="${not empty endTime}">
+        endTime = ${endTime};
+        </c:when>
+        <c:otherwise>
+        endTime = 0;
+        </c:otherwise>
         </c:choose>
 
-        if($("#main-video").length) {
+        if ($("#main-video").length) {
 
             video.addEventListener('timeupdate', function () {
                 if (!video.seeking) {
@@ -207,7 +213,7 @@
         }).annotator('addPlugin', 'HighlightTags', optiontags);
     }
 
-    function createDynamicAnnotation(word, definition, video, figure, difficulty, uri) {
+    function createDynamicAnnotation(word, parentConcept, grandparentConcept, definition, video, figure, difficulty, uri) {
         console.log("Adding annotation for: " + word);
         var allElements = Array.from(document.querySelectorAll('.highlighted'))
         allElements.forEach(function (element) {
@@ -234,6 +240,8 @@
                 var range = {};
 
                 annotation.quote = word;
+                annotation.parentConcept = parentConcept;
+                annotation.grandparentConcept = grandparentConcept;
                 annotation.text = definition;
                 annotation.uri = uri;
                 annotation.wordType = "${preAnnotationType}";
@@ -329,13 +337,13 @@
 
     document.getElementById('complete').addEventListener('click', function () {
         var c = confirm('Are you sure you are finished viewing this page?');
-        if(c == true) {
+        if (c == true) {
             var uri = getUrlParameter('uri', document.location.href);
             $.post("complete", {
-                    uri: uri,
-                }, function (data) {
-                     window.location.href = "${contextPath}";
-                });
+                uri: uri,
+            }, function (data) {
+                window.location.href = "${contextPath}";
+            });
         }
     });
 </script>

@@ -90,6 +90,8 @@ public class HomeController {
 
     }
 
+    // When the homepage loads we force users to first complete a pre-test before viewing the page, which then unlocks
+    // the post-test. This function is called to unlock the components in sequential order.
     @RequestMapping(value = "/complete", method = RequestMethod.POST)
     @ResponseBody
     public void markUriAsCompleted(@RequestParam String uri, HttpSession session, HttpServletResponse response) {
@@ -109,6 +111,7 @@ public class HomeController {
         response.setStatus(401);
     }
 
+    // Resets all of the links back into a locked position.
     @GetMapping("/resetFiles")
     public String resetFiles(HttpSession session) {
         if (Interceptor.ifLoggedIn(session)) {
@@ -146,7 +149,7 @@ public class HomeController {
     @GetMapping("/view")
     public String view(@RequestParam String uri, @RequestParam boolean showAnnotator, Model model, HttpSession session) {
         try {
-            //To create pre-annotation set variable "preAnnotationType" to the proper tag this will be creating (enlgish or scientific) and set model attribute "addPreAnnotation" to true. The file will be a JSON file produced by metamap for science words and a TXT file of the page for english words. The metamap json file contains the phrases that we need to extract while the english words will be compared against Andy Biemiller Words Worth Teaching Alphabetical and Ratings List. This helps us generate a list of potential words that will later be refined.
+            //To create pre-annotation set variable "preAnnotationType" to the proper tag this will be creating (english or scientific) and set model attribute "addPreAnnotation" to true. The file will be a JSON file produced by metamap for science words and a TXT file of the page for english words. The metamap json file contains the phrases that we need to extract while the english words will be compared against Andy Biemiller Words Worth Teaching Alphabetical and Ratings List. This helps us generate a list of potential words that will later be refined.
 
 //            serializeDefinitions();
 //            serializeEnglishDefinitions();
@@ -160,8 +163,8 @@ public class HomeController {
 //            model.addAttribute("addPreAnnotation", true);
 
             List<Annotation> annotations = new ArrayList<>();
-            String annotationFile = "punnettPreAnnotationEnglish.csv";
-            String preAnnotationType = "english";
+            String annotationFile = "punnettPreAnnotationScience.csv";
+            String preAnnotationType = "scientific";
             createAnnotations(annotations, annotationFile);
             model.addAttribute("annotations", annotations);
             model.addAttribute("addAnnotation", false);
@@ -208,6 +211,20 @@ public class HomeController {
             }
             model.addAttribute("fileContents", contents);
             model.addAttribute("uri", uri);
+
+            //Used to fill out parent and grandparent concept search boxes
+            List<Annotation> existingAnnotations = annotationService.findByUri(uri);
+            Set<String> parentConcepts = new HashSet<>();
+            Set<String> grandparentConcepts = new HashSet<>();
+
+            for(Annotation existingAnnotation : existingAnnotations) {
+                parentConcepts.add(existingAnnotation.getParentConcept());
+                grandparentConcepts.add(existingAnnotation.getGrandparentConcept());
+            }
+
+            model.addAttribute("parentConcepts", parentConcepts);
+            model.addAttribute("grandparentConcepts", grandparentConcepts);
+
             return "viewer";
         } catch (Exception e) {
             return "resourceNotFound";
@@ -527,7 +544,7 @@ public class HomeController {
         try (
                 Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(csvFile), "utf-8"));
                 CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT
-                        .withHeader("word", "definition", "video", "image", "difficulty")
+                        .withHeader("word", "parent concept", "grandparent concept", "definition", "video", "image", "difficulty")
                         .withIgnoreHeaderCase()
                         .withSkipHeaderRecord()
                         .withTrim());) {
@@ -535,6 +552,10 @@ public class HomeController {
             for (CSVRecord csvRecord : csvParser) {
                 Annotation annotation = new Annotation();
                 annotation.setQuote(csvRecord.get("word"));
+
+                //Might need to parse parent/grandparent concept columns depending upon how they will be formatted
+                annotation.setParentConcept(csvRecord.get("parent concept"));
+                annotation.setGrandparentConcept(csvRecord.get("grandparent concept"));
                 annotation.setText(csvRecord.get("definition"));
                 annotation.setVideo(csvRecord.get("video"));
                 annotation.setFigure(csvRecord.get("image"));

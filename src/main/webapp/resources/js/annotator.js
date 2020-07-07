@@ -1024,6 +1024,12 @@
             if(annotation.wordDifficulty != undefined) {
                 $(annotation.highlights).attr("data-annotation-difficulty", annotation.wordDifficulty);
             }
+            if(annotation.parentConcept != undefined) {
+                $(annotation.highlights).attr("data-annotation-parent-concept", annotation.parentConcept);
+            }
+            if(annotation.grandparentConcept != undefined) {
+                $(annotation.highlights).attr("data-annotation-grandparent-concept", annotation.grandparentConcept);
+            }
             return annotation
         };
         Annotator.prototype.updateAnnotation = function(annotation) {
@@ -1207,6 +1213,13 @@
             $('#annotation-figure').empty();
             $('#annotation-video').empty();
 
+            $('#new-annotator-viewer').jqxSplitter({
+                orientation: 'horizontal',
+                height: '100%',
+                width: '100%',
+                panels: [{size: '20%'}, {size: '80%'}]
+            })
+
             $('#nested-viewer').jqxSplitter({
                 height: '100%',
                 width: '100%',
@@ -1279,8 +1292,6 @@
                     if (resourceExists("/annotator-file-dir/videos/" + videoComponents[0])) {
                         var video = document.createElement('video');
                         video.controls = "controls";
-                        video.width = "320";
-                        video.height = "240";
                         var source = document.createElement("source");
                         source.src = "/annotator-file-dir/videos/" + videoComponents[0];
                         if (resourceExists("/annotator-file-dir/videos/" + videoComponents[1])) {
@@ -1292,7 +1303,7 @@
                             track.label = "English";
                             video.appendChild(track);
                         }
-                        video.classList.add('figure-img');
+                        video.classList.add('figure-imgage');
                         video.appendChild(source);
                         $('#annotation-video').append(video);
                     } else {

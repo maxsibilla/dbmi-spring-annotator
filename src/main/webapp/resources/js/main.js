@@ -80,3 +80,29 @@ function showHideWordDifficulty(checkbox, difficulty) {
         }
     }
 }
+
+function showHideConcept(conceptLineage, selectId) {
+    var backgroundColor = 'rgba(255, 255, 0, 0.3)';
+    var selected = $('.' + selectId).find(':selected');
+
+    if (selected.length > 0) {
+        var hideElems = document.querySelectorAll("[data-annotation-" + conceptLineage + "]");
+        for (var i = 0; i < hideElems.length; i++) {
+            hideElems[i].setAttribute("style", "background: none");
+        }
+
+        for (var i = 0; i < selected.length; i++) {
+            var elems = document.querySelectorAll("[data-annotation-" + conceptLineage + "='" + selected[i].text + "']");
+
+            for (var j = 0; j < elems.length; j++) {
+                elems[j].setAttribute("style", "background: " + backgroundColor);
+            }
+        }
+    } else {
+        var showElems = document.querySelectorAll("[data-annotation-" + conceptLineage + "]");
+        for (var i = 0; i < showElems.length; i++) {
+            showElems[i].setAttribute("style", "background: " + backgroundColor);
+        }
+    }
+
+}
