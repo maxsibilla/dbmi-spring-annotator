@@ -101,7 +101,11 @@ function showHideConcept(conceptLineage, selectId) {
     } else {
         var showElems = document.querySelectorAll("[data-annotation-" + conceptLineage + "]");
         for (var i = 0; i < showElems.length; i++) {
-            showElems[i].setAttribute("style", "background: " + backgroundColor);
+            if ($(showElems[i]).data('annotation-tag') == 'english') {
+                showElems[i].setAttribute("style", "background: rgba(0, 0, 255, 0.3)");
+            } else {
+                showElems[i].setAttribute("style", "background: " + backgroundColor);
+            }
         }
     }
 
