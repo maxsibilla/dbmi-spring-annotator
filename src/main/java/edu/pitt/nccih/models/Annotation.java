@@ -22,8 +22,6 @@ public class Annotation {
 
     private String  parentConcept;
 
-    private String grandparentConcept;
-
     @Column(length = 200000)
     private String text;
 
@@ -100,14 +98,6 @@ public class Annotation {
 
     public void setParentConcept(String parentConcept) {
         this.parentConcept = parentConcept;
-    }
-
-    public String getGrandparentConcept() {
-        return grandparentConcept;
-    }
-
-    public void setGrandparentConcept(String grandparentConcept) {
-        this.grandparentConcept = grandparentConcept;
     }
 
     public String getText() {

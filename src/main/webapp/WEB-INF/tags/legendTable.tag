@@ -63,19 +63,12 @@
         <td colspan="2">
             Parent concept:
             <select class="parent-select" multiple="multiple" style="width: 100%">
-                <c:forEach items="${parentConcepts}" var="parentConcept">
-                    <option value="${parentConcept}">${parentConcept}</option>
-                </c:forEach>
-            </select>
-        </td>
-    </tr>
-
-    <tr>
-        <td colspan="2">
-            Grandparent concept:
-            <select class="grandparent-select" multiple="multiple" style="width: 100%">
-                <c:forEach items="${grandparentConcepts}" var="grandparentConcept">
-                    <option value="${grandparentConcept}">${grandparentConcept}</option>
+                <c:forEach items="${concepts}" var="concept">
+                    <optgroup label="${concept.key}">
+                        <c:forEach items="${concept.value}" var="baseWord">
+                            <option selected value="${baseWord}">${baseWord}</option>
+                        </c:forEach>
+                    </optgroup>
                 </c:forEach>
             </select>
         </td>
@@ -86,15 +79,17 @@
 
 <script>
     $(document).ready(function () {
-        $('.parent-select').select2();
-        $('.grandparent-select').select2();
+        $.fn.select2.amd.require(["optgroup-data", "optgroup-results"], function (OptgroupData, OptgroupResults) {
+            $('.parent-select').find('option').prop('selected', 'selected').end().select2({
+                dataAdapter: OptgroupData,
+                resultsAdapter: OptgroupResults,
+            })
+            // $('.parent-select').select2();
+        });
     });
+
 
     $('.parent-select').on('change', function (e) {
-        showHideConcept('parent-concept', 'parent-select')
-    });
-
-   $('.grandparent-select').on('change', function (e) {
-        showHideConcept('grandparent-concept', 'grandparent-select')
+        showHideConcept('quote', 'parent-select')
     });
 </script>

@@ -212,18 +212,23 @@ public class HomeController {
             model.addAttribute("fileContents", contents);
             model.addAttribute("uri", uri);
 
-            //Used to fill out parent and grandparent concept search boxes
+            //Used to fill out parent concept search box
             List<Annotation> existingAnnotations = annotationService.findByUri(uri);
-            Set<String> parentConcepts = new HashSet<>();
-            Set<String> grandparentConcepts = new HashSet<>();
+            Map<String, Set<String>> concepts = new TreeMap<>();
 
             for(Annotation existingAnnotation : existingAnnotations) {
-                parentConcepts.add(existingAnnotation.getParentConcept());
-                grandparentConcepts.add(existingAnnotation.getGrandparentConcept());
+                if(existingAnnotation.getWordType().equals("scientific")) {
+                    if (concepts.containsKey(existingAnnotation.getParentConcept())) {
+                        concepts.get(existingAnnotation.getParentConcept()).add(existingAnnotation.getQuote());
+                    } else {
+                        Set<String> baseWords = new TreeSet<>();
+                        baseWords.add(existingAnnotation.getQuote());
+                        concepts.put(existingAnnotation.getParentConcept(), baseWords);
+                    }
+                }
             }
 
-            model.addAttribute("parentConcepts", parentConcepts);
-            model.addAttribute("grandparentConcepts", grandparentConcepts);
+            model.addAttribute("concepts", concepts);
 
             return "viewer";
         } catch (Exception e) {
@@ -544,7 +549,7 @@ public class HomeController {
         try (
                 Reader reader = new BufferedReader(new InputStreamReader(new FileInputStream(csvFile), "utf-8"));
                 CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT
-                        .withHeader("word", "parent concept", "grandparent concept", "definition", "video", "image", "difficulty")
+                        .withHeader("word", "concept", "definition", "video", "image", "difficulty")
                         .withIgnoreHeaderCase()
                         .withSkipHeaderRecord()
                         .withTrim());) {
@@ -553,9 +558,7 @@ public class HomeController {
                 Annotation annotation = new Annotation();
                 annotation.setQuote(csvRecord.get("word"));
 
-                //Might need to parse parent/grandparent concept columns depending upon how they will be formatted
-                annotation.setParentConcept(csvRecord.get("parent concept"));
-                annotation.setGrandparentConcept(csvRecord.get("grandparent concept"));
+                annotation.setParentConcept(csvRecord.get("concept"));
                 annotation.setText(csvRecord.get("definition"));
                 annotation.setVideo(csvRecord.get("video"));
                 annotation.setFigure(csvRecord.get("image"));

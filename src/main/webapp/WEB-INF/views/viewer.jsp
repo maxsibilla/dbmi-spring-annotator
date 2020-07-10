@@ -11,7 +11,10 @@
 <link href="${contextPath}/resources/css/auth.css" rel="stylesheet">
 <link href="${contextPath}/resources/css/jqx.base.css" rel="stylesheet">
 <link href="${contextPath}/resources/css/tags-annotator.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet"/>
+<link href="${contextPath}/resources/css/select2.min.css" type="text/css" rel="stylesheet">
+<link href="${contextPath}/resources/css/select2-bootstrap.min.css" type="text/css" rel="stylesheet">
+<link href="${contextPath}/resources/css/select2.optgroupSelect.css" type="text/css" rel="stylesheet">
+
 <script src="${contextPath}/resources/js/splitter/jqxcore.js"></script>
 <script src="${contextPath}/resources/js/splitter/jqxbuttons.js"></script>
 <script src="${contextPath}/resources/js/splitter/jqxsplitter.js"></script>
@@ -19,7 +22,8 @@
 <script src="${contextPath}/resources/js/splitter/jqxscrollbar.js"></script>
 <script src="${contextPath}/resources/js/searchhighlight.js"></script>
 <script src="${contextPath}/resources/js/tags-annotator.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+<script src="${contextPath}/resources/js/select2.min.js"></script>
+<script src="${contextPath}/resources/js/select2.optgroupSelect.js"></script>
 <body>
 <%--<myTags:navbar></myTags:navbar>--%>
 <div id="main-splitter" class="main-splitter">
@@ -45,33 +49,19 @@
         </c:if>
 
     </div>
-    <div>
-        <div id="new-annotator-viewer">
-            <div id="annotation-definition">
+    <div id="new-annotator-viewer">
+        <div id="nested-viewer">
+            <div id="carouselControls" class="carousel slide" style="height: 100%">
+                <ol class="carousel-indicators" id="carousel-indicators">
 
-            </div>
-            <div>
-                <div id="nested-viewer">
-                    <div id="carouselControls" class="carousel slide" data-ride="carousel">
-                        <div class="carousel-inner" id="annotation-figure">
+                </ol>
+                <div class="carousel-inner" id="annotation-figure" style="height: 100%">
 
-                        </div>
-                        <a class="carousel-control-prev" href="#carouselControls" role="button"
-                           data-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="sr-only">Previous</span>
-                        </a>
-                        <a class="carousel-control-next" href="#carouselControls" role="button"
-                           data-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="sr-only">Next</span>
-                        </a>
-                    </div>
-
-                    <div id="annotation-video">
-
-                    </div>
                 </div>
+            </div>
+
+            <div id="annotation-video">
+
             </div>
         </div>
     </div>
@@ -128,7 +118,7 @@
         //to add annotations
         <c:if test="${addAnnotation}">
         <c:forEach items="${annotations}" var="annotation">
-        createDynamicAnnotation("${annotation.quote}", "${annotation.parentConcept}", "${annotation.grandparentConcept}", "${annotation.text}", "${annotation.video}", "${annotation.figure}", "${annotation.wordDifficulty}", uri);
+        createDynamicAnnotation("${annotation.quote}", "${annotation.parentConcept}", "${annotation.text}", "${annotation.video}", "${annotation.figure}", "${annotation.wordDifficulty}", uri);
         </c:forEach>
         </c:if>
 
@@ -213,7 +203,7 @@
         }).annotator('addPlugin', 'HighlightTags', optiontags);
     }
 
-    function createDynamicAnnotation(word, parentConcept, grandparentConcept, definition, video, figure, difficulty, uri) {
+    function createDynamicAnnotation(word, parentConcept, definition, video, figure, difficulty, uri) {
         console.log("Adding annotation for: " + word);
         var allElements = Array.from(document.querySelectorAll('.highlighted'))
         allElements.forEach(function (element) {
@@ -241,7 +231,6 @@
 
                 annotation.quote = word;
                 annotation.parentConcept = parentConcept;
-                annotation.grandparentConcept = grandparentConcept;
                 annotation.text = definition;
                 annotation.uri = uri;
                 annotation.wordType = "${preAnnotationType}";

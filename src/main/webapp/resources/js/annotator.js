@@ -11,10 +11,13 @@
 
 //
 
-! function() {
-    var $, Annotator, Delegator, LinkParser, Range, Util, base64Decode, base64UrlDecode, createDateFromISO8601, findChild, fn, functions, g, getNodeName, getNodePosition, gettext, parseToken, simpleXPathJQuery, simpleXPathPure, _Annotator, _gettext, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3, _ref4, _t, __slice = [].slice,
+!function () {
+    var $, Annotator, Delegator, LinkParser, Range, Util, base64Decode, base64UrlDecode, createDateFromISO8601,
+        findChild, fn, functions, g, getNodeName, getNodePosition, gettext, parseToken, simpleXPathJQuery,
+        simpleXPathPure, _Annotator, _gettext, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3, _ref4, _t,
+        __slice = [].slice,
         __hasProp = {}.hasOwnProperty,
-        __extends = function(child, parent) {
+        __extends = function (child, parent) {
             for (var key in parent) {
                 if (__hasProp.call(parent, key)) child[key] = parent[key]
             }
@@ -22,25 +25,26 @@
             function ctor() {
                 this.constructor = child
             }
+
             ctor.prototype = parent.prototype;
             child.prototype = new ctor;
             child.__super__ = parent.prototype;
             return child
         },
-        __bind = function(fn, me) {
-            return function() {
+        __bind = function (fn, me) {
+            return function () {
                 return fn.apply(me, arguments)
             }
         },
-        __indexOf = [].indexOf || function(item) {
+        __indexOf = [].indexOf || function (item) {
             for (var i = 0, l = this.length; i < l; i++) {
                 if (i in this && this[i] === item) return i
             }
             return -1
         };
-    simpleXPathJQuery = function(relativeRoot) {
+    simpleXPathJQuery = function (relativeRoot) {
         var jq;
-        jq = this.map(function() {
+        jq = this.map(function () {
             var elem, idx, path, tagName;
             path = "";
             elem = this;
@@ -55,16 +59,16 @@
         });
         return jq.get()
     };
-    simpleXPathPure = function(relativeRoot) {
+    simpleXPathPure = function (relativeRoot) {
         var getPathSegment, getPathTo, jq, rootNode;
-        getPathSegment = function(node) {
+        getPathSegment = function (node) {
             var name, pos;
             name = getNodeName(node);
             pos = getNodePosition(node);
             return "" + name + "[" + pos + "]"
         };
         rootNode = relativeRoot;
-        getPathTo = function(node) {
+        getPathTo = function (node) {
             var xpath;
             xpath = "";
             while (node !== rootNode) {
@@ -78,14 +82,14 @@
             xpath = xpath.replace(/\/$/, "");
             return xpath
         };
-        jq = this.map(function() {
+        jq = this.map(function () {
             var path;
             path = getPathTo(this);
             return path
         });
         return jq.get()
     };
-    findChild = function(node, type, index) {
+    findChild = function (node, type, index) {
         var child, children, found, name, _i, _len;
         if (!node.hasChildNodes()) {
             throw new Error("XPath error: node has no children!")
@@ -104,7 +108,7 @@
         }
         throw new Error("XPath error: wanted child not found.")
     };
-    getNodeName = function(node) {
+    getNodeName = function (node) {
         var nodeName;
         nodeName = node.nodeName.toLowerCase();
         switch (nodeName) {
@@ -118,7 +122,7 @@
                 return nodeName
         }
     };
-    getNodePosition = function(node) {
+    getNodePosition = function (node) {
         var pos, tmp;
         pos = 0;
         tmp = node;
@@ -135,15 +139,15 @@
         _gettext = new Gettext({
             domain: "annotator"
         });
-        gettext = function(msgid) {
+        gettext = function (msgid) {
             return _gettext.gettext(msgid)
         }
     } else {
-        gettext = function(msgid) {
+        gettext = function (msgid) {
             return msgid
         }
     }
-    _t = function(msgid) {
+    _t = function (msgid) {
         return gettext(msgid)
     };
     if (!(typeof jQuery !== "undefined" && jQuery !== null ? (_ref = jQuery.fn) != null ? _ref.jquery : void 0 : void 0)) {
@@ -154,9 +158,9 @@
     }
     $ = jQuery;
     Util = {};
-    Util.flatten = function(array) {
+    Util.flatten = function (array) {
         var flatten;
-        flatten = function(ary) {
+        flatten = function (ary) {
             var el, flat, _i, _len;
             flat = [];
             for (_i = 0, _len = ary.length; _i < _len; _i++) {
@@ -167,7 +171,7 @@
         };
         return flatten(array)
     };
-    Util.contains = function(parent, child) {
+    Util.contains = function (parent, child) {
         var node;
         node = child;
         while (node != null) {
@@ -178,9 +182,9 @@
         }
         return false
     };
-    Util.getTextNodes = function(jq) {
+    Util.getTextNodes = function (jq) {
         var getTextNodes;
-        getTextNodes = function(node) {
+        getTextNodes = function (node) {
             var nodes;
             if (node && node.nodeType !== Node.TEXT_NODE) {
                 nodes = [];
@@ -196,11 +200,11 @@
                 return node
             }
         };
-        return jq.map(function() {
+        return jq.map(function () {
             return Util.flatten(getTextNodes(this))
         })
     };
-    Util.getLastTextNodeUpTo = function(n) {
+    Util.getLastTextNodeUpTo = function (n) {
         var result;
         switch (n.nodeType) {
             case Node.TEXT_NODE:
@@ -221,7 +225,7 @@
             return null
         }
     };
-    Util.getFirstTextNodeNotBefore = function(n) {
+    Util.getFirstTextNodeNotBefore = function (n) {
         var result;
         switch (n.nodeType) {
             case Node.TEXT_NODE:
@@ -242,14 +246,14 @@
             return null
         }
     };
-    Util.readRangeViaSelection = function(range) {
+    Util.readRangeViaSelection = function (range) {
         var sel;
         sel = Util.getGlobal().getSelection();
         sel.removeAllRanges();
         sel.addRange(range.toRange());
         return sel.toString()
     };
-    Util.xpathFromNode = function(el, relativeRoot) {
+    Util.xpathFromNode = function (el, relativeRoot) {
         var exception, result;
         try {
             result = simpleXPathJQuery.call(el, relativeRoot)
@@ -260,7 +264,7 @@
         }
         return result
     };
-    Util.nodeFromXPath = function(xp, root) {
+    Util.nodeFromXPath = function (xp, root) {
         var idx, name, node, step, steps, _i, _len, _ref1;
         steps = xp.substring(1).split("/");
         node = root;
@@ -272,24 +276,24 @@
         }
         return node
     };
-    Util.escape = function(html) {
+    Util.escape = function (html) {
         return html.replace(/&(?!\w+;)/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
     };
-    Util.uuid = function() {
+    Util.uuid = function () {
         var counter;
         counter = 0;
-        return function() {
+        return function () {
             return counter++
         }
     }();
-    Util.getGlobal = function() {
-        return function() {
+    Util.getGlobal = function () {
+        return function () {
             return this
         }()
     };
-    Util.maxZIndex = function($elements) {
+    Util.maxZIndex = function ($elements) {
         var all, el;
-        all = function() {
+        all = function () {
             var _i, _len, _results;
             _results = [];
             for (_i = 0, _len = $elements.length; _i < _len; _i++) {
@@ -304,7 +308,7 @@
         }();
         return Math.max.apply(Math, all)
     };
-    Util.mousePosition = function(e, offsetEl) {
+    Util.mousePosition = function (e, offsetEl) {
         var offset, _ref1;
         if ((_ref1 = $(offsetEl).css("position")) !== "absolute" && _ref1 !== "fixed" && _ref1 !== "relative") {
             offsetEl = $(offsetEl).offsetParent()[0]
@@ -315,13 +319,13 @@
             left: e.pageX - offset.left
         }
     };
-    Util.preventEventDefault = function(event) {
+    Util.preventEventDefault = function (event) {
         return event != null ? typeof event.preventDefault === "function" ? event.preventDefault() : void 0 : void 0
     };
     functions = ["log", "debug", "info", "warn", "exception", "assert", "dir", "dirxml", "trace", "group", "groupEnd", "groupCollapsed", "time", "timeEnd", "profile", "profileEnd", "count", "clear", "table", "error", "notifyFirebug", "firebug", "userObjects"];
     if (typeof console !== "undefined" && console !== null) {
         if (console.group == null) {
-            console.group = function(name) {
+            console.group = function (name) {
                 return console.log("GROUP: ", name)
             }
         }
@@ -331,7 +335,7 @@
         for (_i = 0, _len = functions.length; _i < _len; _i++) {
             fn = functions[_i];
             if (console[fn] == null) {
-                console[fn] = function() {
+                console[fn] = function () {
                     return console.log(_t("Not implemented:") + (" console." + name))
                 }
             }
@@ -340,20 +344,21 @@
         this.console = {};
         for (_j = 0, _len1 = functions.length; _j < _len1; _j++) {
             fn = functions[_j];
-            this.console[fn] = function() {}
+            this.console[fn] = function () {
+            }
         }
-        this.console["error"] = function() {
+        this.console["error"] = function () {
             var args;
             args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
             return alert("ERROR: " + args.join(", "))
         };
-        this.console["warn"] = function() {
+        this.console["warn"] = function () {
             var args;
             args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
             return alert("WARNING: " + args.join(", "))
         }
     }
-    Delegator = function() {
+    Delegator = function () {
         Delegator.prototype.events = {};
         Delegator.prototype.options = {};
         Delegator.prototype.element = null;
@@ -365,10 +370,11 @@
             this.on = this.subscribe;
             this.addEvents()
         }
-        Delegator.prototype.destroy = function() {
+
+        Delegator.prototype.destroy = function () {
             return this.removeEvents()
         };
-        Delegator.prototype.addEvents = function() {
+        Delegator.prototype.addEvents = function () {
             var event, _k, _len2, _ref1, _results;
             _ref1 = Delegator._parseEvents(this.events);
             _results = [];
@@ -378,7 +384,7 @@
             }
             return _results
         };
-        Delegator.prototype.removeEvents = function() {
+        Delegator.prototype.removeEvents = function () {
             var event, _k, _len2, _ref1, _results;
             _ref1 = Delegator._parseEvents(this.events);
             _results = [];
@@ -388,9 +394,9 @@
             }
             return _results
         };
-        Delegator.prototype._addEvent = function(selector, event, functionName) {
+        Delegator.prototype._addEvent = function (selector, event, functionName) {
             var closure, _this = this;
-            closure = function() {
+            closure = function () {
                 return _this[functionName].apply(_this, arguments)
             };
             if (selector === "" && Delegator._isCustomEvent(event)) {
@@ -401,7 +407,7 @@
             this._closures["" + selector + "/" + event + "/" + functionName] = closure;
             return this
         };
-        Delegator.prototype._removeEvent = function(selector, event, functionName) {
+        Delegator.prototype._removeEvent = function (selector, event, functionName) {
             var closure;
             closure = this._closures["" + selector + "/" + event + "/" + functionName];
             if (selector === "" && Delegator._isCustomEvent(event)) {
@@ -412,26 +418,26 @@
             delete this._closures["" + selector + "/" + event + "/" + functionName];
             return this
         };
-        Delegator.prototype.publish = function() {
+        Delegator.prototype.publish = function () {
             this.element.triggerHandler.apply(this.element, arguments);
             return this
         };
-        Delegator.prototype.subscribe = function(event, callback) {
+        Delegator.prototype.subscribe = function (event, callback) {
             var closure;
-            closure = function() {
+            closure = function () {
                 return callback.apply(this, [].slice.call(arguments, 1))
             };
             closure.guid = callback.guid = $.guid += 1;
             this.element.bind(event, closure);
             return this
         };
-        Delegator.prototype.unsubscribe = function() {
+        Delegator.prototype.unsubscribe = function () {
             this.element.unbind.apply(this.element, arguments);
             return this
         };
         return Delegator
     }();
-    Delegator._parseEvents = function(eventsObj) {
+    Delegator._parseEvents = function (eventsObj) {
         var event, events, functionName, sel, selector, _k, _ref1;
         events = [];
         for (sel in eventsObj) {
@@ -445,9 +451,9 @@
         }
         return events
     };
-    Delegator.natives = function() {
+    Delegator.natives = function () {
         var key, specials, val;
-        specials = function() {
+        specials = function () {
             var _ref1, _results;
             _ref1 = jQuery.event.special;
             _results = [];
@@ -460,12 +466,12 @@
         }();
         return "blur focus focusin focusout load resize scroll unload click dblclick\nmousedown mouseup mousemove mouseover mouseout mouseenter mouseleave\nchange select submit keydown keypress keyup error".split(/[^a-z]+/).concat(specials)
     }();
-    Delegator._isCustomEvent = function(event) {
+    Delegator._isCustomEvent = function (event) {
         event = event.split(".")[0];
         return $.inArray(event, Delegator.natives) === -1
     };
     Range = {};
-    Range.sniff = function(r) {
+    Range.sniff = function (r) {
         if (r.commonAncestorContainer != null) {
             return new Range.BrowserRange(r)
         } else if (typeof r.start === "string") {
@@ -477,12 +483,12 @@
             return false
         }
     };
-    Range.nodeFromXPath = function(xpath, root) {
+    Range.nodeFromXPath = function (xpath, root) {
         var customResolver, evaluateXPath, namespace, node, segment;
         if (root == null) {
             root = document
         }
-        evaluateXPath = function(xp, nsResolver) {
+        evaluateXPath = function (xp, nsResolver) {
             var exception;
             if (nsResolver == null) {
                 nsResolver = null
@@ -502,7 +508,7 @@
             customResolver = document.createNSResolver(document.ownerDocument === null ? document.documentElement : document.ownerDocument.documentElement);
             node = evaluateXPath(xpath, customResolver);
             if (!node) {
-                xpath = function() {
+                xpath = function () {
                     var _k, _len2, _ref1, _results;
                     _ref1 = xpath.split("/");
                     _results = [];
@@ -517,7 +523,7 @@
                     return _results
                 }().join("/");
                 namespace = document.lookupNamespaceURI(null);
-                customResolver = function(ns) {
+                customResolver = function (ns) {
                     if (ns === "xhtml") {
                         return namespace
                     } else {
@@ -529,7 +535,7 @@
             return node
         }
     };
-    Range.RangeError = function(_super) {
+    Range.RangeError = function (_super) {
         __extends(RangeError, _super);
 
         function RangeError(type, message, parent) {
@@ -538,9 +544,10 @@
             this.parent = parent != null ? parent : null;
             RangeError.__super__.constructor.call(this, this.message)
         }
+
         return RangeError
     }(Error);
-    Range.BrowserRange = function() {
+    Range.BrowserRange = function () {
         function BrowserRange(obj) {
             this.commonAncestorContainer = obj.commonAncestorContainer;
             this.startContainer = obj.startContainer;
@@ -548,7 +555,8 @@
             this.endContainer = obj.endContainer;
             this.endOffset = obj.endOffset
         }
-        BrowserRange.prototype.normalize = function(root) {
+
+        BrowserRange.prototype.normalize = function (root) {
             var n, node, nr, r;
             if (this.tainted) {
                 console.error(_t("You may only call normalize() once on a BrowserRange!"));
@@ -612,23 +620,24 @@
             }
             return new Range.NormalizedRange(nr)
         };
-        BrowserRange.prototype.serialize = function(root, ignoreSelector) {
+        BrowserRange.prototype.serialize = function (root, ignoreSelector) {
             return this.normalize(root).serialize(root, ignoreSelector)
         };
         return BrowserRange
     }();
-    Range.NormalizedRange = function() {
+    Range.NormalizedRange = function () {
         function NormalizedRange(obj) {
             this.commonAncestor = obj.commonAncestor;
             this.start = obj.start;
             this.end = obj.end
         }
-        NormalizedRange.prototype.normalize = function(root) {
+
+        NormalizedRange.prototype.normalize = function (root) {
             return this
         };
-        NormalizedRange.prototype.limit = function(bounds) {
+        NormalizedRange.prototype.limit = function (bounds) {
             var nodes, parent, startParents, _k, _len2, _ref1;
-            nodes = $.grep(this.textNodes(), function(node) {
+            nodes = $.grep(this.textNodes(), function (node) {
                 return node.parentNode === bounds || $.contains(bounds, node.parentNode)
             });
             if (!nodes.length) {
@@ -647,9 +656,9 @@
             }
             return this
         };
-        NormalizedRange.prototype.serialize = function(root, ignoreSelector) {
+        NormalizedRange.prototype.serialize = function (root, ignoreSelector) {
             var end, serialization, start;
-            serialization = function(node, isEnd) {
+            serialization = function (node, isEnd) {
                 var n, nodes, offset, origParent, textNodes, xpath, _k, _len2;
                 if (ignoreSelector) {
                     origParent = $(node).parents(":not(" + ignoreSelector + ")").eq(0)
@@ -679,9 +688,9 @@
                 endOffset: end[1]
             })
         };
-        NormalizedRange.prototype.text = function() {
+        NormalizedRange.prototype.text = function () {
             var node;
-            return function() {
+            return function () {
                 var _k, _len2, _ref1, _results;
                 _ref1 = this.textNodes();
                 _results = [];
@@ -692,13 +701,13 @@
                 return _results
             }.call(this).join("")
         };
-        NormalizedRange.prototype.textNodes = function() {
+        NormalizedRange.prototype.textNodes = function () {
             var end, start, textNodes, _ref1;
             textNodes = Util.getTextNodes($(this.commonAncestor));
             _ref1 = [textNodes.index(this.start), textNodes.index(this.end)], start = _ref1[0], end = _ref1[1];
             return $.makeArray(textNodes.slice(start, +end + 1 || 9e9))
         };
-        NormalizedRange.prototype.toRange = function() {
+        NormalizedRange.prototype.toRange = function () {
             var range;
             range = document.createRange();
             range.setStartBefore(this.start);
@@ -707,14 +716,15 @@
         };
         return NormalizedRange
     }();
-    Range.SerializedRange = function() {
+    Range.SerializedRange = function () {
         function SerializedRange(obj) {
             this.start = obj.start;
             this.startOffset = obj.startOffset;
             this.end = obj.end;
             this.endOffset = obj.endOffset
         }
-        SerializedRange.prototype.normalize = function(root) {
+
+        SerializedRange.prototype.normalize = function (root) {
             var contains, e, length, node, p, range, targetOffset, tn, _k, _l, _len2, _len3, _ref1, _ref2;
             range = {};
             _ref1 = ["start", "end"];
@@ -749,12 +759,12 @@
                     throw new Range.RangeError("" + p + "offset", "Couldn't find offset " + this[p + "Offset"] + " in element " + this[p])
                 }
             }
-            contains = document.compareDocumentPosition == null ? function(a, b) {
+            contains = document.compareDocumentPosition == null ? function (a, b) {
                 return a.contains(b)
-            } : function(a, b) {
+            } : function (a, b) {
                 return a.compareDocumentPosition(b) & 16
             };
-            $(range.startContainer).parents().each(function() {
+            $(range.startContainer).parents().each(function () {
                 if (contains(this, range.endContainer)) {
                     range.commonAncestorContainer = this;
                     return false
@@ -762,10 +772,10 @@
             });
             return new Range.BrowserRange(range).normalize(root)
         };
-        SerializedRange.prototype.serialize = function(root, ignoreSelector) {
+        SerializedRange.prototype.serialize = function (root, ignoreSelector) {
             return this.normalize(root).serialize(root, ignoreSelector)
         };
-        SerializedRange.prototype.toObject = function() {
+        SerializedRange.prototype.toObject = function () {
             return {
                 start: this.start,
                 startOffset: this.startOffset,
@@ -776,14 +786,14 @@
         return SerializedRange
     }();
     _Annotator = this.Annotator;
-    Annotator = function(_super) {
+    Annotator = function (_super) {
         __extends(Annotator, _super);
         //Overwrite existing show/hide functionality to work on clicks
         Annotator.prototype.events = {
             ".annotator-adder button click": "onAdderClick",
             ".annotator-adder button mousedown": "onAdderMousedown",
             // ".annotator-hl mouseover": "onHighlightMouseover",
-                ".annotator-hl click": "onHighlightMouseover",
+            ".annotator-hl click": "onHighlightMouseover",
             // ".annotator-hl mouseout": "startViewerHideTimer"
         };
         Annotator.prototype.html = {
@@ -828,20 +838,21 @@
             this.adder = $(this.html.adder).appendTo(this.wrapper).hide();
             Annotator._instances.push(this)
         }
-        Annotator.prototype._setupWrapper = function() {
+
+        Annotator.prototype._setupWrapper = function () {
             this.wrapper = $(this.html.wrapper);
             this.element.find("script").remove();
             this.element.wrapInner(this.wrapper);
             this.wrapper = this.element.find(".annotator-wrapper");
             return this
         };
-        Annotator.prototype._setupViewer = function() {
+        Annotator.prototype._setupViewer = function () {
             var _this = this;
             this.viewer = new Annotator.Viewer({
                 readOnly: this.options.readOnly
             });
             this.viewer.hide().on("edit", this.onEditAnnotation).on("delete", this.onDeleteAnnotation).addField({
-                load: function(field, annotation) {
+                load: function (field, annotation) {
                     if (annotation.text) {
                         $(field).html(Util.escape(annotation.text))
                     } else {
@@ -855,55 +866,55 @@
             });
             return this
         };
-        Annotator.prototype._setupEditor = function() {
+        Annotator.prototype._setupEditor = function () {
             this.editor = new Annotator.Editor;
             this.editor.hide().on("hide", this.onEditorHide).on("save", this.onEditorSubmit).addField({
                 type: "textarea",
                 label: _t("Definition") + "...",
-                load: function(field, annotation) {
+                load: function (field, annotation) {
                     return $(field).find("textarea").val(annotation.text || "")
                 },
-                submit: function(field, annotation) {
+                submit: function (field, annotation) {
                     return annotation.text = $(field).find("textarea").val()
                 }
             });
             this.editor.hide().on("hide", this.onEditorHide).on("save", this.onEditorSubmit).addField({
                 type: "textarea",
                 label: _t("Figure") + "...",
-                load: function(field, annotation) {
+                load: function (field, annotation) {
                     return $(field).find("textarea").val(annotation.figure || "")
                 },
-                submit: function(field, annotation) {
+                submit: function (field, annotation) {
                     return annotation.figure = $(field).find("textarea").val()
                 }
             });
             this.editor.hide().on("hide", this.onEditorHide).on("save", this.onEditorSubmit).addField({
                 type: "textarea",
                 label: _t("Video") + "...",
-                load: function(field, annotation) {
+                load: function (field, annotation) {
                     return $(field).find("textarea").val(annotation.video || "")
                 },
-                submit: function(field, annotation) {
+                submit: function (field, annotation) {
                     return annotation.video = $(field).find("textarea").val()
                 }
             });
             this.editor.element.appendTo(this.wrapper);
             return this
         };
-        Annotator.prototype._setupDocumentEvents = function() {
+        Annotator.prototype._setupDocumentEvents = function () {
             $(document).bind({
                 mouseup: this.checkForEndSelection,
                 mousedown: this.checkForStartSelection
             });
             return this
         };
-        Annotator.prototype._setupDynamicStyle = function() {
+        Annotator.prototype._setupDynamicStyle = function () {
             var max, sel, style, x;
             style = $("#annotator-dynamic-style");
             if (!style.length) {
                 style = $('<style id="annotator-dynamic-style"></style>').appendTo(document.head)
             }
-            sel = "*" + function() {
+            sel = "*" + function () {
                 var _k, _len2, _ref1, _results;
                 _ref1 = ["adder", "outer", "notice", "filter"];
                 _results = [];
@@ -918,7 +929,7 @@
             style.text([".annotator-adder, .annotator-outer, .annotator-notice {", "  z-index: " + (max + 20) + ";", "}", ".annotator-filter {", "  z-index: " + (max + 10) + ";", "}"].join("\n"));
             return this
         };
-        Annotator.prototype.destroy = function() {
+        Annotator.prototype.destroy = function () {
             var idx, name, plugin, _base, _ref1;
             Annotator.__super__.destroy.apply(this, arguments);
             $(document).unbind({
@@ -929,7 +940,7 @@
             this.adder.remove();
             this.viewer.destroy();
             this.editor.destroy();
-            this.wrapper.find(".annotator-hl").each(function() {
+            this.wrapper.find(".annotator-hl").each(function () {
                 $(this).contents().insertBefore(this);
                 return $(this).remove()
             });
@@ -939,7 +950,7 @@
             _ref1 = this.plugins;
             for (name in _ref1) {
                 plugin = _ref1[name];
-                if (typeof(_base = this.plugins[name]).destroy === "function") {
+                if (typeof (_base = this.plugins[name]).destroy === "function") {
                     _base.destroy()
                 }
             }
@@ -948,13 +959,13 @@
                 return Annotator._instances.splice(idx, 1)
             }
         };
-        Annotator.prototype.getSelectedRanges = function() {
+        Annotator.prototype.getSelectedRanges = function () {
             var browserRange, i, normedRange, r, ranges, rangesToIgnore, selection, _k, _len2;
             selection = Util.getGlobal().getSelection();
             ranges = [];
             rangesToIgnore = [];
             if (!selection.isCollapsed) {
-                ranges = function() {
+                ranges = function () {
                     var _k, _ref1, _results;
                     _results = [];
                     for (i = _k = 0, _ref1 = selection.rangeCount; 0 <= _ref1 ? _k < _ref1 : _k > _ref1; i = 0 <= _ref1 ? ++_k : --_k) {
@@ -974,20 +985,20 @@
                 r = rangesToIgnore[_k];
                 selection.addRange(r)
             }
-            return $.grep(ranges, function(range) {
+            return $.grep(ranges, function (range) {
                 if (range) {
                     selection.addRange(range.toRange())
                 }
                 return range
             })
         };
-        Annotator.prototype.createAnnotation = function() {
+        Annotator.prototype.createAnnotation = function () {
             var annotation;
             annotation = {};
             this.publish("beforeAnnotationCreated", [annotation]);
             return annotation
         };
-        Annotator.prototype.setupAnnotation = function(annotation) {
+        Annotator.prototype.setupAnnotation = function (annotation) {
             var e, normed, normedRanges, r, root, _k, _l, _len2, _len3, _ref1;
             root = this.wrapper[0];
             annotation.ranges || (annotation.ranges = this.selectedRanges);
@@ -1018,27 +1029,25 @@
             annotation.quote = annotation.quote.join(" / ");
             $(annotation.highlights).data("annotation", annotation);
             $(annotation.highlights).attr("data-annotation-id", annotation.id);
-            if(annotation.tags != undefined) {
+            $(annotation.highlights).attr("data-annotation-quote", annotation.quote);
+            if (annotation.tags != undefined) {
                 $(annotation.highlights).attr("data-annotation-tag", annotation.tags[0]);
             }
-            if(annotation.wordDifficulty != undefined) {
+            if (annotation.wordDifficulty != undefined) {
                 $(annotation.highlights).attr("data-annotation-difficulty", annotation.wordDifficulty);
             }
-            if(annotation.parentConcept != undefined) {
-                $(annotation.highlights).attr("data-annotation-parent-concept", annotation.parentConcept);
-            }
-            if(annotation.grandparentConcept != undefined) {
-                $(annotation.highlights).attr("data-annotation-grandparent-concept", annotation.grandparentConcept);
+            if (annotation.parentConcept != undefined) {
+                $(annotation.highlights).attr("data-annotation-concept", annotation.parentConcept);
             }
             return annotation
         };
-        Annotator.prototype.updateAnnotation = function(annotation) {
+        Annotator.prototype.updateAnnotation = function (annotation) {
             this.publish("beforeAnnotationUpdated", [annotation]);
             $(annotation.highlights).attr("data-annotation-id", annotation.id);
             this.publish("annotationUpdated", [annotation]);
             return annotation
         };
-        Annotator.prototype.deleteAnnotation = function(annotation) {
+        Annotator.prototype.deleteAnnotation = function (annotation) {
             var child, h, _k, _len2, _ref1;
             if (annotation.highlights != null) {
                 _ref1 = annotation.highlights;
@@ -1054,12 +1063,12 @@
             this.publish("annotationDeleted", [annotation]);
             return annotation
         };
-        Annotator.prototype.loadAnnotations = function(annotations) {
+        Annotator.prototype.loadAnnotations = function (annotations) {
             var clone, loader, _this = this;
             if (annotations == null) {
                 annotations = []
             }
-            loader = function(annList) {
+            loader = function (annList) {
                 var n, now, _k, _len2;
                 if (annList == null) {
                     annList = []
@@ -1070,7 +1079,7 @@
                     _this.setupAnnotation(n)
                 }
                 if (annList.length > 0) {
-                    return setTimeout(function() {
+                    return setTimeout(function () {
                         return loader(annList)
                     }, 10)
                 } else {
@@ -1081,7 +1090,7 @@
             loader(annotations);
             return this
         };
-        Annotator.prototype.dumpAnnotations = function() {
+        Annotator.prototype.dumpAnnotations = function () {
             if (this.plugins["Store"]) {
                 return this.plugins["Store"].dumpAnnotations()
             } else {
@@ -1089,7 +1098,7 @@
                 return false
             }
         };
-        Annotator.prototype.highlightRange = function(normedRange, cssClass) {
+        Annotator.prototype.highlightRange = function (normedRange, cssClass) {
             var hl, node, white, _k, _len2, _ref1, _results;
             if (cssClass == null) {
                 cssClass = "annotator-hl"
@@ -1106,7 +1115,7 @@
             }
             return _results
         };
-        Annotator.prototype.highlightRanges = function(normedRanges, cssClass) {
+        Annotator.prototype.highlightRanges = function (normedRanges, cssClass) {
             var highlights, r, _k, _len2;
             if (cssClass == null) {
                 cssClass = "annotator-hl"
@@ -1118,7 +1127,7 @@
             }
             return highlights
         };
-        Annotator.prototype.addPlugin = function(name, options) {
+        Annotator.prototype.addPlugin = function (name, options) {
             var klass, _base;
             if (this.plugins[name]) {
                 console.error(_t("You cannot have more than one instance of any plugin."))
@@ -1127,7 +1136,7 @@
                 if (typeof klass === "function") {
                     this.plugins[name] = new klass(this.element[0], options);
                     this.plugins[name].annotator = this;
-                    if (typeof(_base = this.plugins[name]).pluginInit === "function") {
+                    if (typeof (_base = this.plugins[name]).pluginInit === "function") {
                         _base.pluginInit()
                     }
                 } else {
@@ -1136,40 +1145,40 @@
             }
             return this
         };
-        Annotator.prototype.showEditor = function(annotation, location) {
+        Annotator.prototype.showEditor = function (annotation, location) {
             this.editor.element.css(location);
             this.editor.load(annotation);
             this.publish("annotationEditorShown", [this.editor, annotation]);
             return this
         };
-        Annotator.prototype.onEditorHide = function() {
+        Annotator.prototype.onEditorHide = function () {
             this.publish("annotationEditorHidden", [this.editor]);
             return this.ignoreMouseup = false
         };
-        Annotator.prototype.onEditorSubmit = function(annotation) {
+        Annotator.prototype.onEditorSubmit = function (annotation) {
             return this.publish("annotationEditorSubmit", [this.editor, annotation])
         };
-        Annotator.prototype.showViewer = function(annotations, location) {
+        Annotator.prototype.showViewer = function (annotations, location) {
             this.viewer.element.css(location);
             this.viewer.load(annotations);
             return this.publish("annotationViewerShown", [this.viewer, annotations])
         };
-        Annotator.prototype.startViewerHideTimer = function() {
+        Annotator.prototype.startViewerHideTimer = function () {
             if (!this.viewerHideTimer) {
                 return this.viewerHideTimer = setTimeout(this.viewer.hide, 250)
             }
         };
-        Annotator.prototype.clearViewerHideTimer = function() {
+        Annotator.prototype.clearViewerHideTimer = function () {
             clearTimeout(this.viewerHideTimer);
             return this.viewerHideTimer = false
         };
-        Annotator.prototype.checkForStartSelection = function(event) {
+        Annotator.prototype.checkForStartSelection = function (event) {
             if (!(event && this.isAnnotator(event.target))) {
                 this.startViewerHideTimer()
             }
             return this.mouseIsDown = true
         };
-        Annotator.prototype.checkForEndSelection = function(event) {
+        Annotator.prototype.checkForEndSelection = function (event) {
             var container, range, _k, _len2, _ref1;
             this.mouseIsDown = false;
             if (this.ignoreMouseup) {
@@ -1190,10 +1199,10 @@
                 return this.adder.hide()
             }
         };
-        Annotator.prototype.isAnnotator = function(element) {
+        Annotator.prototype.isAnnotator = function (element) {
             return !!$(element).parents().addBack().filter("[class^=annotator-]").not("[class=annotator-hl]").not(this.wrapper).length
         };
-        Annotator.prototype.onHighlightMouseover = function(event) {
+        Annotator.prototype.onHighlightMouseover = function (event) {
             var annotations;
             this.clearViewerHideTimer();
             if (this.mouseIsDown) {
@@ -1202,36 +1211,23 @@
             if (this.viewer.isShown()) {
                 this.viewer.hide()
             }
-            annotations = $(event.target).parents(".annotator-hl").addBack().map(function() {
+            annotations = $(event.target).parents(".annotator-hl").addBack().map(function () {
                 return $(this).data("annotation")
             }).toArray();
 
             //overwrite tooltip and instead populate jqxSplitter
-             $('#main-splitter').jqxSplitter('expand');
+            $('#main-splitter').jqxSplitter('expand');
 
             $('#annotation-definition').empty();
             $('#annotation-figure').empty();
             $('#annotation-video').empty();
-
-            $('#new-annotator-viewer').jqxSplitter({
-                orientation: 'horizontal',
-                height: '100%',
-                width: '100%',
-                panels: [{size: '20%'}, {size: '80%'}]
-            })
+            $('#carousel-indicators').empty();
 
             $('#nested-viewer').jqxSplitter({
                 height: '100%',
                 width: '100%',
                 panels: [{size: '50%'}, {size: '50%'}]
             });
-
-            var quote = document.createElement('h6');
-            quote.appendChild(document.createTextNode(annotations[0].quote));
-            var comment = document.createElement('div');
-            comment.appendChild(document.createTextNode('Definition: ' + annotations[0].text));
-            $('#annotation-definition').append(quote);
-            $('#annotation-definition').append(comment);
 
             var difficultyFilter = JSON.stringify(wordDifficultyFilter);
             //track annotation
@@ -1248,38 +1244,39 @@
 
             //Load figures
             try {
-                var figures = annotations[0].figure.split(",");
+                var figures = annotations[0].figure.split(";");
+
+                var indicatorItem = document.createElement("li");
+                indicatorItem.setAttribute('data-target', '#carouselControls');
+                indicatorItem.setAttribute('data-slide-to', '0');
+                indicatorItem.classList.add('active');
+                $('#carousel-indicators').append(indicatorItem);
+
+                var carouselItem = document.createElement("div");
+                carouselItem.classList.add('carousel-item');
+                carouselItem.classList.add('active');
+                var quote = document.createElement("h2");
+                quote.append(annotations[0].quote + ":");
+                carouselItem.appendChild(quote);
+                var definition = document.createElement("h3");
+                definition.append(annotations[0].text);
+                carouselItem.appendChild(definition);
+                $('#annotation-figure').append(carouselItem);
+
                 if (figures) {
                     for (var i = 0; i < figures.length; i++) {
-                        if(resourceExists("/annotator-file-dir/figures/" + figures[i])) {
-                            var carouselItem = document.createElement("div");
-                            carouselItem.classList.add('carousel-item');
-                            if (i == 0) {
-                                carouselItem.classList.add('active');
-                            }
-                            var figure = document.createElement('img');
-                            figure.src = "/annotator-file-dir/figures/" + figures[i];
-                            figure.classList.add('d-block');
-                            carouselItem.appendChild(figure);
-                            $('#annotation-figure').append(carouselItem);
-                        } else {
-                            var carouselItem = document.createElement("div");
-                            carouselItem.classList.add('carousel-item');
-                            carouselItem.classList.add('active');
-                            var carouselCaption = document.createElement("div");
-                            carouselCaption.classList.add('carousel-caption');
-                            carouselCaption.classList.add('d-none');
-                            carouselCaption.classList.add('d-md-block');
-                            var figure = document.createElement('img');
-                            figure.src = "/annotator-file-dir/figures/blank.png";
-                            figure.classList.add('d-block');
-                            var h4 = document.createElement('h4');
-                            h4.appendChild(document.createTextNode('There is no image available at this time.'));
-                            carouselCaption.append(h4);
-                            carouselItem.appendChild(figure);
-                            carouselItem.append(carouselCaption);
-                            $('#annotation-figure').append(carouselItem);
-                        }
+                        var carouselItem = document.createElement("div");
+                        carouselItem.classList.add('carousel-item');
+                        var figure = document.createElement('img');
+                        figure.src = figures[i];
+                        figure.classList.add('d-block');
+                        carouselItem.appendChild(figure);
+                        $('#annotation-figure').append(carouselItem);
+
+                        var indicatorItem = document.createElement("li");
+                        indicatorItem.setAttribute('data-target', '#carouselControls');
+                        indicatorItem.setAttribute('data-slide-to', i + 1);
+                        $('#carousel-indicators').append(indicatorItem);
                     }
                 }
             } catch (e) {
@@ -1303,27 +1300,38 @@
                             track.label = "English";
                             video.appendChild(track);
                         }
-                        video.classList.add('figure-imgage');
+                        video.classList.add('annotation-video');
                         video.appendChild(source);
                         $('#annotation-video').append(video);
                     } else {
-                        var h4 = document.createElement('h4');
-                        h4.appendChild(document.createTextNode('There is no video available at this time.'));
-                        $('#annotation-video').append(h4);
-
+                        if (validUrl(videoComponents[0])) {
+                            var video = document.createElement("iframe");
+                            video.src = videoComponents[0];
+                            video.classList.add('iframe-video');
+                            $('#annotation-video').append(video);
+                        } else {
+                            var video = document.createElement('video');
+                            video.controls = "controls";
+                            var source = document.createElement("source");
+                            video.appendChild(source);
+                            var h4 = document.createElement('h4');
+                            h4.appendChild(document.createTextNode('There is no video available at this time.'));
+                            $('#annotation-video').append(h4);
+                        }
                     }
                 }
-            } catch (e) {}
+            } catch (e) {
+            }
 
             // return this.showViewer(annotations, Util.mousePosition(event, this.wrapper[0]))
         };
-        Annotator.prototype.onAdderMousedown = function(event) {
+        Annotator.prototype.onAdderMousedown = function (event) {
             if (event != null) {
                 event.preventDefault()
             }
             return this.ignoreMouseup = true
         };
-        Annotator.prototype.onAdderClick = function(event) {
+        Annotator.prototype.onAdderClick = function (event) {
             var annotation, cancel, cleanup, position, save, _this = this;
             if (event != null) {
                 event.preventDefault()
@@ -1332,16 +1340,16 @@
             this.adder.hide();
             annotation = this.setupAnnotation(this.createAnnotation());
             $(annotation.highlights).addClass("annotator-hl-temporary");
-            save = function() {
+            save = function () {
                 cleanup();
                 $(annotation.highlights).removeClass("annotator-hl-temporary");
                 return _this.publish("annotationCreated", [annotation])
             };
-            cancel = function() {
+            cancel = function () {
                 cleanup();
                 return _this.deleteAnnotation(annotation)
             };
-            cleanup = function() {
+            cleanup = function () {
                 _this.unsubscribe("annotationEditorHidden", cancel);
                 return _this.unsubscribe("annotationEditorSubmit", save)
             };
@@ -1349,14 +1357,14 @@
             this.subscribe("annotationEditorSubmit", save);
             return this.showEditor(annotation, position)
         };
-        Annotator.prototype.onEditAnnotation = function(annotation) {
+        Annotator.prototype.onEditAnnotation = function (annotation) {
             var cleanup, offset, update, _this = this;
             offset = this.viewer.element.position();
-            update = function() {
+            update = function () {
                 cleanup();
                 return _this.updateAnnotation(annotation)
             };
-            cleanup = function() {
+            cleanup = function () {
                 _this.unsubscribe("annotationEditorHidden", cleanup);
                 return _this.unsubscribe("annotationEditorSubmit", update)
             };
@@ -1365,19 +1373,21 @@
             this.viewer.hide();
             return this.showEditor(annotation, offset)
         };
-        Annotator.prototype.onDeleteAnnotation = function(annotation) {
+        Annotator.prototype.onDeleteAnnotation = function (annotation) {
             this.viewer.hide();
             return this.deleteAnnotation(annotation)
         };
         return Annotator
     }(Delegator);
-    Annotator.Plugin = function(_super) {
+    Annotator.Plugin = function (_super) {
         __extends(Plugin, _super);
 
         function Plugin(element, options) {
             Plugin.__super__.constructor.apply(this, arguments)
         }
-        Plugin.prototype.pluginInit = function() {};
+
+        Plugin.prototype.pluginInit = function () {
+        };
         return Plugin
     }(Delegator);
     g = Util.getGlobal();
@@ -1412,19 +1422,19 @@
     Annotator.Util = Util;
     Annotator._instances = [];
     Annotator._t = _t;
-    Annotator.supported = function() {
-        return function() {
+    Annotator.supported = function () {
+        return function () {
             return !!this.getSelection
         }()
     };
-    Annotator.noConflict = function() {
+    Annotator.noConflict = function () {
         Util.getGlobal().Annotator = _Annotator;
         return this
     };
-    $.fn.annotator = function(options) {
+    $.fn.annotator = function (options) {
         var args;
         args = Array.prototype.slice.call(arguments, 1);
-        return this.each(function() {
+        return this.each(function () {
             var instance;
             instance = $.data(this, "annotator");
             if (options === "destroy") {
@@ -1439,7 +1449,7 @@
         })
     };
     this.Annotator = Annotator;
-    Annotator.Widget = function(_super) {
+    Annotator.Widget = function (_super) {
         __extends(Widget, _super);
         Widget.prototype.classes = {
             hide: "annotator-hide",
@@ -1453,11 +1463,12 @@
             Widget.__super__.constructor.apply(this, arguments);
             this.classes = $.extend({}, Annotator.Widget.prototype.classes, this.classes)
         }
-        Widget.prototype.destroy = function() {
+
+        Widget.prototype.destroy = function () {
             this.removeEvents();
             return this.element.remove()
         };
-        Widget.prototype.checkOrientation = function() {
+        Widget.prototype.checkOrientation = function () {
             var current, offset, viewport, widget, window;
             this.resetOrientation();
             window = $(Annotator.Util.getGlobal());
@@ -1479,27 +1490,27 @@
             }
             return this
         };
-        Widget.prototype.resetOrientation = function() {
+        Widget.prototype.resetOrientation = function () {
             this.element.removeClass(this.classes.invert.x).removeClass(this.classes.invert.y);
             return this
         };
-        Widget.prototype.invertX = function() {
+        Widget.prototype.invertX = function () {
             this.element.addClass(this.classes.invert.x);
             return this
         };
-        Widget.prototype.invertY = function() {
+        Widget.prototype.invertY = function () {
             this.element.addClass(this.classes.invert.y);
             return this
         };
-        Widget.prototype.isInvertedY = function() {
+        Widget.prototype.isInvertedY = function () {
             return this.element.hasClass(this.classes.invert.y)
         };
-        Widget.prototype.isInvertedX = function() {
+        Widget.prototype.isInvertedX = function () {
             return this.element.hasClass(this.classes.invert.x)
         };
         return Widget
     }(Delegator);
-    Annotator.Editor = function(_super) {
+    Annotator.Editor = function (_super) {
         __extends(Editor, _super);
         Editor.prototype.events = {
             "form submit": "submit",
@@ -1526,7 +1537,8 @@
             this.fields = [];
             this.annotation = {}
         }
-        Editor.prototype.show = function(event) {
+
+        Editor.prototype.show = function (event) {
             Annotator.Util.preventEventDefault(event);
             this.element.removeClass(this.classes.hide);
             this.element.find(".annotator-save").addClass(this.classes.focus);
@@ -1535,12 +1547,12 @@
             this.setupDraggables();
             return this.publish("show")
         };
-        Editor.prototype.hide = function(event) {
+        Editor.prototype.hide = function (event) {
             Annotator.Util.preventEventDefault(event);
             this.element.addClass(this.classes.hide);
             return this.publish("hide")
         };
-        Editor.prototype.load = function(annotation) {
+        Editor.prototype.load = function (annotation) {
             var field, _k, _len2, _ref2;
             this.annotation = annotation;
             this.publish("load", [this.annotation]);
@@ -1551,7 +1563,7 @@
             }
             return this.show()
         };
-        Editor.prototype.submit = function(event) {
+        Editor.prototype.submit = function (event) {
             var field, _k, _len2, _ref2;
             Annotator.Util.preventEventDefault(event);
             _ref2 = this.fields;
@@ -1562,14 +1574,16 @@
             this.publish("save", [this.annotation]);
             return this.hide()
         };
-        Editor.prototype.addField = function(options) {
+        Editor.prototype.addField = function (options) {
             var element, field, input;
             field = $.extend({
                 id: "annotator-field-" + Annotator.Util.uuid(),
                 type: "input",
                 label: "",
-                load: function() {},
-                submit: function() {}
+                load: function () {
+                },
+                submit: function () {
+                }
             }, options);
             input = null;
             element = $('<li class="annotator-item" />');
@@ -1602,7 +1616,7 @@
             this.fields.push(field);
             return field.element
         };
-        Editor.prototype.checkOrientation = function() {
+        Editor.prototype.checkOrientation = function () {
             var controls, list;
             Editor.__super__.checkOrientation.apply(this, arguments);
             list = this.element.find("ul");
@@ -1614,18 +1628,19 @@
             }
             return this
         };
-        Editor.prototype.processKeypress = function(event) {
+        Editor.prototype.processKeypress = function (event) {
             if (event.keyCode === 27) {
                 return this.hide()
             } else if (event.keyCode === 13 && !event.shiftKey) {
                 return this.submit()
             }
         };
-        Editor.prototype.onCancelButtonMouseover = function() {
+        Editor.prototype.onCancelButtonMouseover = function () {
             return this.element.find("." + this.classes.focus).removeClass(this.classes.focus)
         };
-        Editor.prototype.setupDraggables = function() {
-            var classes, controls, cornerItem, editor, mousedown, onMousedown, onMousemove, onMouseup, resize, textarea, throttle, _this = this;
+        Editor.prototype.setupDraggables = function () {
+            var classes, controls, cornerItem, editor, mousedown, onMousedown, onMousemove, onMouseup, resize, textarea,
+                throttle, _this = this;
             this.element.find(".annotator-resize").remove();
             if (this.element.hasClass(this.classes.invert.y)) {
                 cornerItem = this.element.find(".annotator-item:last")
@@ -1643,7 +1658,7 @@
             resize = editor.find(".annotator-resize");
             controls = editor.find(".annotator-controls");
             throttle = false;
-            onMousedown = function(event) {
+            onMousedown = function (event) {
                 if (event.target === this) {
                     mousedown = {
                         element: this,
@@ -1658,11 +1673,11 @@
                     return event.preventDefault()
                 }
             };
-            onMouseup = function() {
+            onMouseup = function () {
                 mousedown = null;
                 return $(window).unbind(".annotator-editor-resize")
             };
-            onMousemove = function(event) {
+            onMousemove = function (event) {
                 var diff, directionX, directionY, height, width;
                 if (mousedown && throttle === false) {
                     diff = {
@@ -1691,7 +1706,7 @@
                         mousedown.left = event.pageX
                     }
                     throttle = true;
-                    return setTimeout(function() {
+                    return setTimeout(function () {
                         return throttle = false
                     }, 1e3 / 60)
                 }
@@ -1701,7 +1716,7 @@
         };
         return Editor
     }(Annotator.Widget);
-    Annotator.Viewer = function(_super) {
+    Annotator.Viewer = function (_super) {
         __extends(Viewer, _super);
         Viewer.prototype.events = {
             ".annotator-edit click": "onEditClick",
@@ -1730,26 +1745,28 @@
             this.fields = [];
             this.annotations = []
         }
-        Viewer.prototype.show = function(event) {
+
+        Viewer.prototype.show = function (event) {
             var controls, _this = this;
             Annotator.Util.preventEventDefault(event);
             controls = this.element.find(".annotator-controls").addClass(this.classes.showControls);
-            setTimeout(function() {
+            setTimeout(function () {
                 return controls.removeClass(_this.classes.showControls)
             }, 500);
             this.element.removeClass(this.classes.hide);
             return this.checkOrientation().publish("show")
         };
-        Viewer.prototype.isShown = function() {
+        Viewer.prototype.isShown = function () {
             return !this.element.hasClass(this.classes.hide)
         };
-        Viewer.prototype.hide = function(event) {
+        Viewer.prototype.hide = function (event) {
             Annotator.Util.preventEventDefault(event);
             this.element.addClass(this.classes.hide);
             return this.publish("hide")
         };
-        Viewer.prototype.load = function(annotations) {
-            var annotation, controller, controls, del, edit, element, field, item, link, links, list, _k, _l, _len2, _len3, _ref2, _ref3;
+        Viewer.prototype.load = function (annotations) {
+            var annotation, controller, controls, del, edit, element, field, item, link, links, list, _k, _l, _len2,
+                _len3, _ref2, _ref3;
             this.annotations = annotations || [];
             list = this.element.find("ul:first").empty();
             _ref2 = this.annotations;
@@ -1773,16 +1790,16 @@
                     del.remove()
                 } else {
                     controller = {
-                        showEdit: function() {
+                        showEdit: function () {
                             return edit.removeAttr("disabled")
                         },
-                        hideEdit: function() {
+                        hideEdit: function () {
                             return edit.attr("disabled", "disabled")
                         },
-                        showDelete: function() {
+                        showDelete: function () {
                             return del.removeAttr("disabled")
                         },
-                        hideDelete: function() {
+                        hideDelete: function () {
                             return del.attr("disabled", "disabled")
                         }
                     }
@@ -1797,34 +1814,36 @@
             this.publish("load", [this.annotations]);
             return this.show()
         };
-        Viewer.prototype.addField = function(options) {
+        Viewer.prototype.addField = function (options) {
             var field;
             field = $.extend({
-                load: function() {}
+                load: function () {
+                }
             }, options);
             field.element = $("<div />")[0];
             this.fields.push(field);
             field.element;
             return this
         };
-        Viewer.prototype.onEditClick = function(event) {
+        Viewer.prototype.onEditClick = function (event) {
             return this.onButtonClick(event, "edit")
         };
-        Viewer.prototype.onDeleteClick = function(event) {
+        Viewer.prototype.onDeleteClick = function (event) {
             return this.onButtonClick(event, "delete")
         };
-        Viewer.prototype.onButtonClick = function(event, type) {
+        Viewer.prototype.onButtonClick = function (event, type) {
             var item;
             item = $(event.target).parents(".annotator-annotation");
             return this.publish(type, [item.data("annotation")])
         };
         return Viewer
     }(Annotator.Widget);
-    LinkParser = function() {
+    LinkParser = function () {
         function LinkParser(data) {
             this.data = data
         }
-        LinkParser.prototype.get = function(rel, cond) {
+
+        LinkParser.prototype.get = function (rel, cond) {
             var d, k, keys, match, v, _k, _len2, _ref2, _results;
             if (cond == null) {
                 cond = {}
@@ -1832,7 +1851,7 @@
             cond = $.extend({}, cond, {
                 rel: rel
             });
-            keys = function() {
+            keys = function () {
                 var _results;
                 _results = [];
                 for (k in cond) {
@@ -1846,7 +1865,7 @@
             _results = [];
             for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
                 d = _ref2[_k];
-                match = keys.reduce(function(m, k) {
+                match = keys.reduce(function (m, k) {
                     return m && d[k] === cond[k]
                 }, true);
                 if (match) {
@@ -1860,7 +1879,7 @@
         return LinkParser
     }();
     Annotator = Annotator || {};
-    Annotator.Notification = function(_super) {
+    Annotator.Notification = function (_super) {
         __extends(Notification, _super);
         Notification.prototype.events = {
             click: "hide"
@@ -1880,7 +1899,8 @@
             this.show = __bind(this.show, this);
             Notification.__super__.constructor.call(this, $(this.options.html).appendTo(document.body)[0], options)
         }
-        Notification.prototype.show = function(message, status) {
+
+        Notification.prototype.show = function (message, status) {
             if (status == null) {
                 status = Annotator.Notification.INFO
             }
@@ -1889,7 +1909,7 @@
             setTimeout(this.hide, 5e3);
             return this
         };
-        Notification.prototype.hide = function() {
+        Notification.prototype.hide = function () {
             if (this.currentStatus == null) {
                 this.currentStatus = Annotator.Notification.INFO
             }
@@ -1901,26 +1921,27 @@
     Annotator.Notification.INFO = "info";
     Annotator.Notification.SUCCESS = "success";
     Annotator.Notification.ERROR = "error";
-    $(function() {
+    $(function () {
         var notification;
         notification = new Annotator.Notification;
         Annotator.showNotification = notification.show;
         return Annotator.hideNotification = notification.hide
     });
-    Annotator.Plugin.Unsupported = function(_super) {
+    Annotator.Plugin.Unsupported = function (_super) {
         __extends(Unsupported, _super);
 
         function Unsupported() {
             _ref2 = Unsupported.__super__.constructor.apply(this, arguments);
             return _ref2
         }
+
         Unsupported.prototype.options = {
             message: Annotator._t("Sorry your current browser does not support the Annotator")
         };
-        Unsupported.prototype.pluginInit = function() {
+        Unsupported.prototype.pluginInit = function () {
             var _this = this;
             if (!Annotator.supported()) {
-                return $(function() {
+                return $(function () {
                     Annotator.showNotification(_this.options.message);
                     if (window.XMLHttpRequest === void 0 && ActiveXObject !== void 0) {
                         return $("html").addClass("ie6")
@@ -1930,7 +1951,7 @@
         };
         return Unsupported
     }(Annotator.Plugin);
-    createDateFromISO8601 = function(string) {
+    createDateFromISO8601 = function (string) {
         var d, date, offset, regexp, time, _ref3;
         regexp = "([0-9]{4})(-([0-9]{2})(-([0-9]{2})" + "(T([0-9]{2}):([0-9]{2})(:([0-9]{2})(\\.([0-9]+))?)?" + "(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?";
         d = string.match(new RegExp(regexp));
@@ -1965,7 +1986,7 @@
         date.setTime(Number(time));
         return date
     };
-    base64Decode = function(data) {
+    base64Decode = function (data) {
         var ac, b64, bits, dec, h1, h2, h3, h4, i, o1, o2, o3, tmp_arr;
         if (typeof atob !== "undefined" && atob !== null) {
             return atob(data)
@@ -1999,7 +2020,7 @@
             return tmp_arr.join("")
         }
     };
-    base64UrlDecode = function(data) {
+    base64UrlDecode = function (data) {
         var i, m, _k, _ref3;
         m = data.length % 4;
         if (m !== 0) {
@@ -2011,12 +2032,12 @@
         data = data.replace(/_/g, "/");
         return base64Decode(data)
     };
-    parseToken = function(token) {
+    parseToken = function (token) {
         var head, payload, sig, _ref3;
         _ref3 = token.split("."), head = _ref3[0], payload = _ref3[1], sig = _ref3[2];
         return JSON.parse(base64UrlDecode(payload))
     };
-    Annotator.Plugin.Auth = function(_super) {
+    Annotator.Plugin.Auth = function (_super) {
         __extends(Auth, _super);
         Auth.prototype.options = {
             token: null,
@@ -2033,7 +2054,8 @@
                 this.requestToken()
             }
         }
-        Auth.prototype.requestToken = function() {
+
+        Auth.prototype.requestToken = function () {
             var _this = this;
             this.requestInProgress = true;
             return $.ajax({
@@ -2042,24 +2064,24 @@
                 xhrFields: {
                     withCredentials: true
                 }
-            }).done(function(data, status, xhr) {
+            }).done(function (data, status, xhr) {
                 return _this.setToken(data)
-            }).fail(function(xhr, status, err) {
+            }).fail(function (xhr, status, err) {
                 var msg;
                 msg = Annotator._t("Couldn't get auth token:");
                 console.error("" + msg + " " + err, xhr);
                 return Annotator.showNotification("" + msg + " " + xhr.responseText, Annotator.Notification.ERROR)
-            }).always(function() {
+            }).always(function () {
                 return _this.requestInProgress = false
             })
         };
-        Auth.prototype.setToken = function(token) {
+        Auth.prototype.setToken = function (token) {
             var _results, _this = this;
             this.token = token;
             this._unsafeToken = parseToken(token);
             if (this.haveValidToken()) {
                 if (this.options.autoFetch) {
-                    this.refreshTimeout = setTimeout(function() {
+                    this.refreshTimeout = setTimeout(function () {
                         return _this.requestToken()
                     }, (this.timeToExpiry() - 2) * 1e3)
                 }
@@ -2073,13 +2095,13 @@
                 console.warn(Annotator._t("Didn't get a valid token."));
                 if (this.options.autoFetch) {
                     console.warn(Annotator._t("Getting a new token in 10s."));
-                    return setTimeout(function() {
+                    return setTimeout(function () {
                         return _this.requestToken()
                     }, 10 * 1e3)
                 }
             }
         };
-        Auth.prototype.haveValidToken = function() {
+        Auth.prototype.haveValidToken = function () {
             var allFields;
             allFields = this._unsafeToken && this._unsafeToken.issuedAt && this._unsafeToken.ttl && this._unsafeToken.consumerKey;
             if (allFields && this.timeToExpiry() > 0) {
@@ -2088,7 +2110,7 @@
                 return false
             }
         };
-        Auth.prototype.timeToExpiry = function() {
+        Auth.prototype.timeToExpiry = function () {
             var expiry, issue, now, timeToExpiry;
             now = (new Date).getTime() / 1e3;
             issue = createDateFromISO8601(this._unsafeToken.issuedAt).getTime() / 1e3;
@@ -2100,14 +2122,14 @@
                 return 0
             }
         };
-        Auth.prototype.updateHeaders = function() {
+        Auth.prototype.updateHeaders = function () {
             var current;
             current = this.element.data("annotator:headers");
             return this.element.data("annotator:headers", $.extend(current, {
                 "x-annotator-auth-token": this.token
             }))
         };
-        Auth.prototype.withToken = function(callback) {
+        Auth.prototype.withToken = function (callback) {
             if (callback == null) {
                 return
             }
@@ -2122,7 +2144,7 @@
         };
         return Auth
     }(Annotator.Plugin);
-    Annotator.Plugin.Store = function(_super) {
+    Annotator.Plugin.Store = function (_super) {
         __extends(Store, _super);
         Store.prototype.events = {
             annotationCreated: "annotationCreated",
@@ -2151,7 +2173,8 @@
             Store.__super__.constructor.apply(this, arguments);
             this.annotations = []
         }
-        Store.prototype.pluginInit = function() {
+
+        Store.prototype.pluginInit = function () {
             if (!Annotator.supported()) {
                 return
             }
@@ -2161,18 +2184,18 @@
                 return this._getAnnotations()
             }
         };
-        Store.prototype._getAnnotations = function() {
+        Store.prototype._getAnnotations = function () {
             if (this.options.loadFromSearch) {
                 return this.loadAnnotationsFromSearch(this.options.loadFromSearch)
             } else {
                 return this.loadAnnotations()
             }
         };
-        Store.prototype.annotationCreated = function(annotation) {
+        Store.prototype.annotationCreated = function (annotation) {
             var _this = this;
             if (__indexOf.call(this.annotations, annotation) < 0) {
                 this.registerAnnotation(annotation);
-                return this._apiRequest("create", annotation, function(data) {
+                return this._apiRequest("create", annotation, function (data) {
                     if (data.id == null) {
                         console.warn(Annotator._t("Warning: No ID returned from server for annotation "), annotation)
                     }
@@ -2182,29 +2205,29 @@
                 return this.updateAnnotation(annotation, {})
             }
         };
-        Store.prototype.annotationUpdated = function(annotation) {
+        Store.prototype.annotationUpdated = function (annotation) {
             var _this = this;
             if (__indexOf.call(this.annotations, annotation) >= 0) {
-                return this._apiRequest("update", annotation, function(data) {
+                return this._apiRequest("update", annotation, function (data) {
                     return _this.updateAnnotation(annotation, data)
                 })
             }
         };
-        Store.prototype.annotationDeleted = function(annotation) {
+        Store.prototype.annotationDeleted = function (annotation) {
             var _this = this;
             if (__indexOf.call(this.annotations, annotation) >= 0) {
-                return this._apiRequest("destroy", annotation, function() {
+                return this._apiRequest("destroy", annotation, function () {
                     return _this.unregisterAnnotation(annotation)
                 })
             }
         };
-        Store.prototype.registerAnnotation = function(annotation) {
+        Store.prototype.registerAnnotation = function (annotation) {
             return this.annotations.push(annotation)
         };
-        Store.prototype.unregisterAnnotation = function(annotation) {
+        Store.prototype.unregisterAnnotation = function (annotation) {
             return this.annotations.splice(this.annotations.indexOf(annotation), 1)
         };
-        Store.prototype.updateAnnotation = function(annotation, data) {
+        Store.prototype.updateAnnotation = function (annotation, data) {
             if (__indexOf.call(this.annotations, annotation) < 0) {
                 console.error(Annotator._t("Trying to update unregistered annotation!"))
             } else {
@@ -2212,10 +2235,10 @@
             }
             return $(annotation.highlights).data("annotation", annotation)
         };
-        Store.prototype.loadAnnotations = function() {
+        Store.prototype.loadAnnotations = function () {
             return this._apiRequest("read", null, this._onLoadAnnotations)
         };
-        Store.prototype._onLoadAnnotations = function(data) {
+        Store.prototype._onLoadAnnotations = function (data) {
             var a, annotation, annotationMap, newData, _k, _l, _len2, _len3, _ref3;
             if (data == null) {
                 data = []
@@ -2239,16 +2262,16 @@
             this.annotations = this.annotations.concat(newData);
             return this.annotator.loadAnnotations(newData.slice())
         };
-        Store.prototype.loadAnnotationsFromSearch = function(searchOptions) {
+        Store.prototype.loadAnnotationsFromSearch = function (searchOptions) {
             return this._apiRequest("search", searchOptions, this._onLoadAnnotationsFromSearch)
         };
-        Store.prototype._onLoadAnnotationsFromSearch = function(data) {
+        Store.prototype._onLoadAnnotationsFromSearch = function (data) {
             if (data == null) {
                 data = {}
             }
             return this._onLoadAnnotations(data.rows || [])
         };
-        Store.prototype.dumpAnnotations = function() {
+        Store.prototype.dumpAnnotations = function () {
             var ann, _k, _len2, _ref3, _results;
             _ref3 = this.annotations;
             _results = [];
@@ -2258,7 +2281,7 @@
             }
             return _results
         };
-        Store.prototype._apiRequest = function(action, obj, onSuccess) {
+        Store.prototype._apiRequest = function (action, obj, onSuccess) {
             var id, options, request, url;
             id = obj && obj.id;
             url = this._urlFor(action, id);
@@ -2268,14 +2291,15 @@
             request._action = action;
             return request
         };
-        Store.prototype._apiRequestOptions = function(action, obj, onSuccess) {
+        Store.prototype._apiRequestOptions = function (action, obj, onSuccess) {
             var data, method, opts;
             method = this._methodFor(action);
             opts = {
                 type: method,
                 headers: this.element.data("annotator:headers"),
                 dataType: "json",
-                success: onSuccess || function() {},
+                success: onSuccess || function () {
+                },
                 error: this._onError
             };
             if (this.options.emulateHTTP && (method === "PUT" || method === "DELETE")) {
@@ -2306,7 +2330,7 @@
             });
             return opts
         };
-        Store.prototype._urlFor = function(action, id) {
+        Store.prototype._urlFor = function (action, id) {
             var url;
             url = this.options.prefix != null ? this.options.prefix : "";
             url += this.options.urls[action];
@@ -2314,7 +2338,7 @@
             url = url.replace(/:id/, id != null ? id : "");
             return url
         };
-        Store.prototype._methodFor = function(action) {
+        Store.prototype._methodFor = function (action) {
             var table;
             table = {
                 create: "POST",
@@ -2325,7 +2349,7 @@
             };
             return table[action]
         };
-        Store.prototype._dataFor = function(annotation) {
+        Store.prototype._dataFor = function (annotation) {
             var data, highlights;
             highlights = annotation.highlights;
             delete annotation.highlights;
@@ -2336,7 +2360,7 @@
             }
             return data
         };
-        Store.prototype._onError = function(xhr) {
+        Store.prototype._onError = function (xhr) {
             var action, message;
             action = xhr._action;
             message = Annotator._t("Sorry we could not ") + action + Annotator._t(" this annotation");
@@ -2360,7 +2384,7 @@
         };
         return Store
     }(Annotator.Plugin);
-    Annotator.Plugin.Permissions = function(_super) {
+    Annotator.Plugin.Permissions = function (_super) {
         __extends(Permissions, _super);
         Permissions.prototype.events = {
             beforeAnnotationCreated: "addFieldsToAnnotation"
@@ -2368,13 +2392,13 @@
         Permissions.prototype.options = {
             showViewPermissionsCheckbox: true,
             showEditPermissionsCheckbox: true,
-            userId: function(user) {
+            userId: function (user) {
                 return user
             },
-            userString: function(user) {
+            userString: function (user) {
                 return user
             },
-            userAuthorize: function(action, annotation, user) {
+            userAuthorize: function (action, annotation, user) {
                 var token, tokens, _k, _len2;
                 if (annotation.permissions) {
                     tokens = annotation.permissions[action] || [];
@@ -2418,14 +2442,15 @@
                 delete this.options.user
             }
         }
-        Permissions.prototype.pluginInit = function() {
+
+        Permissions.prototype.pluginInit = function () {
             var createCallback, self, _this = this;
             if (!Annotator.supported()) {
                 return
             }
             self = this;
-            createCallback = function(method, type) {
-                return function(field, annotation) {
+            createCallback = function (method, type) {
+                return function (field, annotation) {
                     return self[method].call(self, type, field, annotation)
                 }
             };
@@ -2455,7 +2480,7 @@
                 return this.annotator.plugins.Filter.addFilter({
                     label: Annotator._t("User"),
                     property: "user",
-                    isFiltered: function(input, user) {
+                    isFiltered: function (input, user) {
                         var keyword, _k, _len2, _ref3;
                         user = _this.options.userString(user);
                         if (!(input && user)) {
@@ -2473,10 +2498,10 @@
                 })
             }
         };
-        Permissions.prototype.setUser = function(user) {
+        Permissions.prototype.setUser = function (user) {
             return this.user = user
         };
-        Permissions.prototype.addFieldsToAnnotation = function(annotation) {
+        Permissions.prototype.addFieldsToAnnotation = function (annotation) {
             if (annotation) {
                 annotation.permissions = $.extend(true, {}, this.options.permissions);
                 if (this.user) {
@@ -2484,7 +2509,7 @@
                 }
             }
         };
-        Permissions.prototype.authorize = function(action, annotation, user) {
+        Permissions.prototype.authorize = function (action, annotation, user) {
             if (user === void 0) {
                 user = this.user
             }
@@ -2494,7 +2519,7 @@
                 return true
             }
         };
-        Permissions.prototype.updatePermissionsField = function(action, field, annotation) {
+        Permissions.prototype.updatePermissionsField = function (action, field, annotation) {
             var input;
             field = $(field).show();
             input = field.find("input").removeAttr("disabled");
@@ -2507,7 +2532,7 @@
                 return input.removeAttr("checked")
             }
         };
-        Permissions.prototype.updateAnnotationPermissions = function(type, field, annotation) {
+        Permissions.prototype.updateAnnotationPermissions = function (type, field, annotation) {
             var dataKey;
             if (!annotation.permissions) {
                 annotation.permissions = $.extend(true, {}, this.options.permissions)
@@ -2519,7 +2544,7 @@
                 return annotation.permissions[type] = [this.options.userId(this.user)]
             }
         };
-        Permissions.prototype.updateViewer = function(field, annotation, controls) {
+        Permissions.prototype.updateViewer = function (field, annotation, controls) {
             var user, username;
             field = $(field);
             username = this.options.userString(annotation.user);
@@ -2538,12 +2563,12 @@
                 }
             }
         };
-        Permissions.prototype._setAuthFromToken = function(token) {
+        Permissions.prototype._setAuthFromToken = function (token) {
             return this.setUser(token.userId)
         };
         return Permissions
     }(Annotator.Plugin);
-    Annotator.Plugin.AnnotateItPermissions = function(_super) {
+    Annotator.Plugin.AnnotateItPermissions = function (_super) {
         __extends(AnnotateItPermissions, _super);
 
         function AnnotateItPermissions() {
@@ -2554,6 +2579,7 @@
             _ref3 = AnnotateItPermissions.__super__.constructor.apply(this, arguments);
             return _ref3
         }
+
         AnnotateItPermissions.prototype.options = {
             showViewPermissionsCheckbox: true,
             showEditPermissionsCheckbox: true,
@@ -2562,13 +2588,13 @@
                 authenticated: "group:__authenticated__",
                 consumer: "group:__consumer__"
             },
-            userId: function(user) {
+            userId: function (user) {
                 return user.userId
             },
-            userString: function(user) {
+            userString: function (user) {
                 return user.userId
             },
-            userAuthorize: function(action, annotation, user) {
+            userAuthorize: function (action, annotation, user) {
                 var action_field, permissions, _ref4, _ref5, _ref6, _ref7;
                 permissions = annotation.permissions || {};
                 action_field = permissions[action] || [];
@@ -2599,7 +2625,7 @@
                 admin: []
             }
         };
-        AnnotateItPermissions.prototype.addFieldsToAnnotation = function(annotation) {
+        AnnotateItPermissions.prototype.addFieldsToAnnotation = function (annotation) {
             if (annotation) {
                 annotation.permissions = this.options.permissions;
                 if (this.user) {
@@ -2608,7 +2634,7 @@
                 }
             }
         };
-        AnnotateItPermissions.prototype.updatePermissionsField = function(action, field, annotation) {
+        AnnotateItPermissions.prototype.updatePermissionsField = function (action, field, annotation) {
             var input;
             field = $(field).show();
             input = field.find("input").removeAttr("disabled");
@@ -2616,15 +2642,15 @@
                 field.hide()
             }
             if (this.user && this.authorize(action, annotation || {}, {
-                    userId: "__nonexistentuser__",
-                    consumerKey: this.user.consumerKey
-                })) {
+                userId: "__nonexistentuser__",
+                consumerKey: this.user.consumerKey
+            })) {
                 return input.attr("checked", "checked")
             } else {
                 return input.removeAttr("checked")
             }
         };
-        AnnotateItPermissions.prototype.updateAnnotationPermissions = function(type, field, annotation) {
+        AnnotateItPermissions.prototype.updateAnnotationPermissions = function (type, field, annotation) {
             var dataKey;
             if (!annotation.permissions) {
                 annotation.permissions = this.options.permissions
@@ -2636,12 +2662,12 @@
                 return annotation.permissions[type] = []
             }
         };
-        AnnotateItPermissions.prototype._setAuthFromToken = function(token) {
+        AnnotateItPermissions.prototype._setAuthFromToken = function (token) {
             return this.setUser(token)
         };
         return AnnotateItPermissions
     }(Annotator.Plugin.Permissions);
-    Annotator.Plugin.Filter = function(_super) {
+    Annotator.Plugin.Filter = function (_super) {
         __extends(Filter, _super);
         Filter.prototype.events = {
             ".annotator-filter-property input focus": "_onFilterFocus",
@@ -2666,7 +2692,7 @@
             appendTo: "body",
             filters: [],
             addAnnotationFilter: true,
-            isFiltered: function(input, property) {
+            isFiltered: function (input, property) {
                 var keyword, _k, _len2, _ref4;
                 if (!(input && property)) {
                     return false
@@ -2697,7 +2723,8 @@
             this.filters = [];
             this.current = 0
         }
-        Filter.prototype.pluginInit = function() {
+
+        Filter.prototype.pluginInit = function () {
             var filter, _k, _len2, _ref4;
             _ref4 = this.options.filters;
             for (_k = 0, _len2 = _ref4.length; _k < _len2; _k++) {
@@ -2713,7 +2740,7 @@
                 })
             }
         };
-        Filter.prototype.destroy = function() {
+        Filter.prototype.destroy = function () {
             var currentMargin, html;
             Filter.__super__.destroy.apply(this, arguments);
             html = $("html");
@@ -2721,14 +2748,14 @@
             html.css("padding-top", currentMargin - this.element.outerHeight());
             return this.element.remove()
         };
-        Filter.prototype._insertSpacer = function() {
+        Filter.prototype._insertSpacer = function () {
             var currentMargin, html;
             html = $("html");
             currentMargin = parseInt(html.css("padding-top"), 10) || 0;
             html.css("padding-top", currentMargin + this.element.outerHeight());
             return this
         };
-        Filter.prototype._setupListeners = function() {
+        Filter.prototype._setupListeners = function () {
             var event, events, _k, _len2;
             events = ["annotationsLoaded", "annotationCreated", "annotationUpdated", "annotationDeleted"];
             for (_k = 0, _len2 = events.length; _k < _len2; _k++) {
@@ -2737,25 +2764,25 @@
             }
             return this
         };
-        Filter.prototype.addFilter = function(options) {
+        Filter.prototype.addFilter = function (options) {
             var f, filter;
             filter = $.extend({
                 label: "",
                 property: "",
                 isFiltered: this.options.isFiltered
             }, options);
-            if (! function() {
-                    var _k, _len2, _ref4, _results;
-                    _ref4 = this.filters;
-                    _results = [];
-                    for (_k = 0, _len2 = _ref4.length; _k < _len2; _k++) {
-                        f = _ref4[_k];
-                        if (f.property === filter.property) {
-                            _results.push(f)
-                        }
+            if (!function () {
+                var _k, _len2, _ref4, _results;
+                _ref4 = this.filters;
+                _results = [];
+                for (_k = 0, _len2 = _ref4.length; _k < _len2; _k++) {
+                    f = _ref4[_k];
+                    if (f.property === filter.property) {
+                        _results.push(f)
                     }
-                    return _results
-                }.call(this).length) {
+                }
+                return _results
+            }.call(this).length) {
                 filter.id = "annotator-filter-" + filter.property;
                 filter.annotations = [];
                 filter.element = this.filter.clone().appendTo(this.element);
@@ -2770,14 +2797,14 @@
             }
             return this
         };
-        Filter.prototype.updateFilter = function(filter) {
+        Filter.prototype.updateFilter = function (filter) {
             var annotation, annotations, input, property, _k, _len2, _ref4;
             filter.annotations = [];
             this.updateHighlights();
             this.resetHighlights();
             input = $.trim(filter.element.find("input").val());
             if (input) {
-                annotations = this.highlights.map(function() {
+                annotations = this.highlights.map(function () {
                     return $(this).data("annotation")
                 });
                 _ref4 = $.makeArray(annotations);
@@ -2791,24 +2818,24 @@
                 return this.filterHighlights()
             }
         };
-        Filter.prototype.updateHighlights = function() {
+        Filter.prototype.updateHighlights = function () {
             this.highlights = this.annotator.element.find(".annotator-hl:visible");
             return this.filtered = this.highlights.not(this.classes.hl.hide)
         };
-        Filter.prototype.filterHighlights = function() {
+        Filter.prototype.filterHighlights = function () {
             var activeFilters, annotation, annotations, filtered, highlights, index, uniques, _k, _len2, _ref4;
-            activeFilters = $.grep(this.filters, function(filter) {
+            activeFilters = $.grep(this.filters, function (filter) {
                 return !!filter.annotations.length
             });
             filtered = ((_ref4 = activeFilters[0]) != null ? _ref4.annotations : void 0) || [];
             if (activeFilters.length > 1) {
                 annotations = [];
-                $.each(activeFilters, function() {
+                $.each(activeFilters, function () {
                     return $.merge(annotations, this.annotations)
                 });
                 uniques = [];
                 filtered = [];
-                $.each(annotations, function() {
+                $.each(annotations, function () {
                     if ($.inArray(this, uniques) === -1) {
                         return uniques.push(this)
                     } else {
@@ -2825,18 +2852,18 @@
             this.filtered = this.highlights.not(this.classes.hl.hide);
             return this
         };
-        Filter.prototype.resetHighlights = function() {
+        Filter.prototype.resetHighlights = function () {
             this.highlights.removeClass(this.classes.hl.hide);
             this.filtered = this.highlights;
             return this
         };
-        Filter.prototype._onFilterFocus = function(event) {
+        Filter.prototype._onFilterFocus = function (event) {
             var input;
             input = $(event.target);
             input.parent().addClass(this.classes.active);
             return input.next("button").show()
         };
-        Filter.prototype._onFilterBlur = function(event) {
+        Filter.prototype._onFilterBlur = function (event) {
             var input;
             if (!event.target.value) {
                 input = $(event.target);
@@ -2844,14 +2871,14 @@
                 return input.next("button").hide()
             }
         };
-        Filter.prototype._onFilterKeyup = function(event) {
+        Filter.prototype._onFilterKeyup = function (event) {
             var filter;
             filter = $(event.target).parent().data("filter");
             if (filter) {
                 return this.updateFilter(filter)
             }
         };
-        Filter.prototype._findNextHighlight = function(previous) {
+        Filter.prototype._findNextHighlight = function (previous) {
             var active, annotation, current, index, next, offset, operator, resetOffset;
             if (!this.highlights.length) {
                 return this
@@ -2872,13 +2899,13 @@
             }
             return this._scrollToHighlight(next.data("annotation").highlights)
         };
-        Filter.prototype._onNextClick = function(event) {
+        Filter.prototype._onNextClick = function (event) {
             return this._findNextHighlight()
         };
-        Filter.prototype._onPreviousClick = function(event) {
+        Filter.prototype._onPreviousClick = function (event) {
             return this._findNextHighlight(true)
         };
-        Filter.prototype._scrollToHighlight = function(highlight) {
+        Filter.prototype._scrollToHighlight = function (highlight) {
             highlight = $(highlight);
             this.highlights.removeClass(this.classes.hl.active);
             highlight.addClass(this.classes.hl.active);
@@ -2886,12 +2913,12 @@
                 scrollTop: highlight.offset().top - (this.element.height() + 20)
             }, 150)
         };
-        Filter.prototype._onClearClick = function(event) {
+        Filter.prototype._onClearClick = function (event) {
             return $(event.target).prev("input").val("").keyup().blur()
         };
         return Filter
     }(Annotator.Plugin);
-    Annotator.Plugin.Markdown = function(_super) {
+    Annotator.Plugin.Markdown = function (_super) {
         __extends(Markdown, _super);
         Markdown.prototype.events = {
             annotationViewerTextField: "updateTextField"
@@ -2906,17 +2933,18 @@
                 console.error(Annotator._t("To use the Markdown plugin, you must include Showdown into the page first."))
             }
         }
-        Markdown.prototype.updateTextField = function(field, annotation) {
+
+        Markdown.prototype.updateTextField = function (field, annotation) {
             var text;
             text = Annotator.Util.escape(annotation.text || "");
             return $(field).html(this.convert(text))
         };
-        Markdown.prototype.convert = function(text) {
+        Markdown.prototype.convert = function (text) {
             return this.converter.makeHtml(text)
         };
         return Markdown
     }(Annotator.Plugin);
-    Annotator.Plugin.Tags = function(_super) {
+    Annotator.Plugin.Tags = function (_super) {
         __extends(Tags, _super);
 
         function Tags() {
@@ -2925,8 +2953,9 @@
             _ref4 = Tags.__super__.constructor.apply(this, arguments);
             return _ref4
         }
+
         Tags.prototype.options = {
-            parseTags: function(string) {
+            parseTags: function (string) {
                 var tags;
                 string = $.trim(string);
                 tags = [];
@@ -2935,13 +2964,13 @@
                 }
                 return tags
             },
-            stringifyTags: function(array) {
+            stringifyTags: function (array) {
                 return array.join(" ")
             }
         };
         Tags.prototype.field = null;
         Tags.prototype.input = null;
-        Tags.prototype.pluginInit = function() {
+        Tags.prototype.pluginInit = function () {
             if (!Annotator.supported()) {
                 return
             }
@@ -2962,13 +2991,13 @@
             }
             return this.input = $(this.field).find(":input")
         };
-        Tags.prototype.parseTags = function(string) {
+        Tags.prototype.parseTags = function (string) {
             return this.options.parseTags(string)
         };
-        Tags.prototype.stringifyTags = function(array) {
+        Tags.prototype.stringifyTags = function (array) {
             return this.options.stringifyTags(array)
         };
-        Tags.prototype.updateField = function(field, annotation) {
+        Tags.prototype.updateField = function (field, annotation) {
             var value;
             value = "";
             if (annotation.tags) {
@@ -2976,15 +3005,15 @@
             }
             return this.input.val(value)
         };
-        Tags.prototype.setAnnotationTags = function(field, annotation) {
+        Tags.prototype.setAnnotationTags = function (field, annotation) {
             return annotation.tags = this.parseTags(this.input.val())
         };
-        Tags.prototype.updateViewer = function(field, annotation) {
+        Tags.prototype.updateViewer = function (field, annotation) {
             field = $(field);
             if (annotation.tags && $.isArray(annotation.tags) && annotation.tags.length) {
-                return field.addClass("annotator-tags").html(function() {
+                return field.addClass("annotator-tags").html(function () {
                     var string;
-                    return string = $.map(annotation.tags, function(tag) {
+                    return string = $.map(annotation.tags, function (tag) {
                         return '<span class="annotator-tag">' + Annotator.Util.escape(tag) + "</span>"
                     }).join(" ")
                 })
@@ -2994,7 +3023,7 @@
         };
         return Tags
     }(Annotator.Plugin);
-    Annotator.Plugin.Tags.filterCallback = function(input, tags) {
+    Annotator.Plugin.Tags.filterCallback = function (input, tags) {
         var keyword, keywords, matches, tag, _k, _l, _len2, _len3;
         if (tags == null) {
             tags = []
@@ -3017,7 +3046,7 @@
         }
         return matches === keywords.length
     };
-    Annotator.prototype.setupPlugins = function(config, options) {
+    Annotator.prototype.setupPlugins = function (config, options) {
         var name, opts, pluginConfig, plugins, uri, win, _k, _len2, _results;
         if (config == null) {
             config = {}
@@ -3078,7 +3107,17 @@
 //
 //# sourceMappingURL=annotator-full.min.map
 
-function resourceExists(resource_name){
+function validUrl(url) {
+    var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  return !!pattern.test(url);
+}
+
+function resourceExists(resource_name) {
 
     var http = new XMLHttpRequest();
 
