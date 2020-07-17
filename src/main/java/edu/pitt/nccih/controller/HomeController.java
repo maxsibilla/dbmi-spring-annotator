@@ -16,6 +16,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -55,6 +56,9 @@ public class HomeController {
 
     @Autowired
     private FileService fileService;
+
+    @Autowired
+    private Environment env;
 
     @GetMapping("/")
     public String home(Model model, HttpSession session) {
@@ -151,28 +155,39 @@ public class HomeController {
         try {
             //To create pre-annotation set variable "preAnnotationType" to the proper tag this will be creating (english or scientific) and set model attribute "addPreAnnotation" to true. The file will be a JSON file produced by metamap for science words and a TXT file of the page for english words. The metamap json file contains the phrases that we need to extract while the english words will be compared against Andy Biemiller Words Worth Teaching Alphabetical and Ratings List. This helps us generate a list of potential words that will later be refined.
 
-//            serializeDefinitions();
-//            serializeEnglishDefinitions();
+            // This should only every have to be done once to create the serialized files
+            if (env.getProperty("annotation.serialize").equals("true")) {
+                serializeDefinitions();
+                serializeEnglishDefinitions();
+            }
 
-//            Map<String, String> phrases = new HashMap();
-//            String preAnnotationType = "scientific";
-//            String preAnnotationFile = "GeneticCodeJson.json";
-//            String subtitleFile = "GeneticCodeText.txt";
-//            createPreAnnotations(phrases, preAnnotationType, preAnnotationFile, subtitleFile, uri);
-//            model.addAttribute("phrases", phrases);
-//            model.addAttribute("addPreAnnotation", true);
+            String addAnnotation = env.getProperty("annotation.add");
+            if (addAnnotation.equals("true")) {
+                String annotationFile = env.getProperty("annotation.file");
+                String preAnnotationType = env.getProperty("annotation.type");
+                String subtitleFile = env.getProperty("annotation.subtitle");
 
-            List<Annotation> annotations = new ArrayList<>();
-            String annotationFile = "punnettPreAnnotationScience.csv";
-            String preAnnotationType = "scientific";
-            createAnnotations(annotations, annotationFile);
-            model.addAttribute("annotations", annotations);
-            model.addAttribute("addAnnotation", false);
+                if (env.getProperty("annotation.preAnnotate").equals("false")) {
+                    List<Annotation> annotations = new ArrayList<>();
 
-//            String subtitleFile = "GeneticCodeText.txt";
-//            createSubtitlePreAnnotations(annotations, preAnnotationType, subtitleFile, uri);
-
-            model.addAttribute("preAnnotationType", preAnnotationType);
+                    if (env.getProperty("annotation.media").equals("video")) {
+                        createAnnotations(annotations, annotationFile);
+                        createSubtitlePreAnnotations(annotations, preAnnotationType, subtitleFile, uri);
+                    } else if (env.getProperty("annotation.media").equals("file")) {
+                        createAnnotations(annotations, annotationFile);
+                    }
+                    model.addAttribute("preAnnotationType", preAnnotationType);
+                    model.addAttribute("annotations", annotations);
+                    model.addAttribute("addAnnotation", true);
+                } else {
+                    Map<String, String> phrases = new HashMap();
+                    createPreAnnotations(phrases, preAnnotationType, annotationFile, subtitleFile, uri);
+                    model.addAttribute("phrases", phrases);
+                    model.addAttribute("addPreAnnotation", true);
+                }
+            } else {
+                model.addAttribute("addAnnotation", false);
+            }
 
             //load html file into page
             File file = fileService.findByUri(uri);
@@ -216,8 +231,8 @@ public class HomeController {
             List<Annotation> existingAnnotations = annotationService.findByUri(uri);
             Map<String, Set<String>> concepts = new TreeMap<>();
 
-            for(Annotation existingAnnotation : existingAnnotations) {
-                if(existingAnnotation.getWordType().equals("scientific")) {
+            for (Annotation existingAnnotation : existingAnnotations) {
+                if (existingAnnotation.getWordType().equals("scientific")) {
                     if (concepts.containsKey(existingAnnotation.getParentConcept())) {
                         concepts.get(existingAnnotation.getParentConcept()).add(existingAnnotation.getQuote());
                     } else {
@@ -235,34 +250,30 @@ public class HomeController {
             return "resourceNotFound";
         }
     }
-//
-//    private void createPreAnnotations(Map<String, String> phrases, String preAnnotationType, String preAnnotationFile, String subtitleFile, String uri) throws IOException, ParseException {
-//        if (definitions == null) {
-//            definitions = deserializeDefinitions();
-//        }
-//        if (englishDefinitions == null) {
-//            englishDefinitions = deserializeEnglishDefinitions();
-//        }
-//        List<String> acceptedSemanticTypes = new ArrayList<>();
-//        List<String[]> reportData = new ArrayList<>();
-//
-//        if (preAnnotationType.equals("scientific")) {
-//            reportData.add(new String[]{"Word", "Definition", "CUI", "Semantic Type", "Terminology"});
-//            buildAcceptedSemanticTypesList(acceptedSemanticTypes);
-//            getPhrasesFromJson(phrases, acceptedSemanticTypes, reportData, preAnnotationFile);
-//        }
-//
-//        if (preAnnotationType.equals("english")) {
-//            reportData.add(new String[]{"Word", "Definition", "Rating"});
-//            getPhrasesFromEnglishWordListing(phrases, reportData, preAnnotationFile);
-//        }
-//
-////        if (subtitleFile != null) {
-////            createSubtitlePreAnnotations(phrases, preAnnotationType, subtitleFile, uri);
-////        }
-//
-//        writeReport(reportData);
-//    }
+
+    private void createPreAnnotations(Map<String, String> phrases, String preAnnotationType, String preAnnotationFile, String subtitleFile, String uri) throws IOException, ParseException {
+        if (definitions == null) {
+            definitions = deserializeDefinitions();
+        }
+        if (englishDefinitions == null) {
+            englishDefinitions = deserializeEnglishDefinitions();
+        }
+        List<String> acceptedSemanticTypes = new ArrayList<>();
+        List<String[]> reportData = new ArrayList<>();
+
+        if (preAnnotationType.equals("scientific")) {
+            reportData.add(new String[]{"Word", "Definition", "CUI", "Semantic Type", "Terminology"});
+            buildAcceptedSemanticTypesList(acceptedSemanticTypes);
+            getPhrasesFromJson(phrases, acceptedSemanticTypes, reportData, preAnnotationFile);
+        }
+
+        if (preAnnotationType.equals("english")) {
+            reportData.add(new String[]{"Word", "Definition", "Rating"});
+            getPhrasesFromEnglishWordListing(phrases, reportData, preAnnotationFile);
+        }
+
+        writeReport(reportData);
+    }
 
     private void createSubtitlePreAnnotations(List<Annotation> annotations, String preAnnotationType, String subtitleFile, String uri) throws IOException, ParseException {
         BufferedReader reader;
