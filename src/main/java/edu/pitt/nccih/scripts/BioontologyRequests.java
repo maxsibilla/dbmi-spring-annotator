@@ -23,31 +23,31 @@ public class BioontologyRequests {
 
     public static void main(String[] args) {
         //This removes unnecessary logging information
-//        Set<String> artifactoryLoggers = new HashSet<>(Arrays.asList("org.apache.http", "groovyx.net.http"));
-//        for (String log : artifactoryLoggers) {
-//            ch.qos.logback.classic.Logger artLogger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(log);
-//            artLogger.setLevel(ch.qos.logback.classic.Level.INFO);
-//            artLogger.setAdditive(false);
-//        }
-//
-//        String[] searchTerms = {"base",
-//                "amino acid",
-//                "code",
-//        };
-//        for (String searchterm : searchTerms) {
-//            String result = ontologyRequest(searchterm, "MESH", null);
-//            parseGetRequest(result);
-//
-//            result = ontologyRequest(searchterm, "NCIT", null);
-//            parseGetRequest(result);
-//
-//            System.out.println(searchterm);
-//            System.out.println(Arrays.toString(parentVocab.toArray()));
-//            System.out.println(Arrays.toString(grandParentVocab.toArray()));
-//
-//            parentVocab.clear();
-//            grandParentVocab.clear();
-//        }
+        Set<String> artifactoryLoggers = new HashSet<>(Arrays.asList("org.apache.http", "groovyx.net.http"));
+        for (String log : artifactoryLoggers) {
+            ch.qos.logback.classic.Logger artLogger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(log);
+            artLogger.setLevel(ch.qos.logback.classic.Level.INFO);
+            artLogger.setAdditive(false);
+        }
+
+        String[] searchTerms = {"base",
+                "amino acid",
+                "code",
+        };
+        for (String searchterm : searchTerms) {
+            String result = ontologyRequest(searchterm, "MESH", null);
+            parseGetRequest(result);
+
+            result = ontologyRequest(searchterm, "NCIT", null);
+            parseGetRequest(result);
+
+            System.out.println(searchterm);
+            System.out.println(Arrays.toString(parentVocab.toArray()));
+            System.out.println(Arrays.toString(grandParentVocab.toArray()));
+
+            parentVocab.clear();
+            grandParentVocab.clear();
+        }
 
     }
 
