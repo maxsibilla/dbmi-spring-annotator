@@ -51,7 +51,7 @@
     </div>
     <div id="new-annotator-viewer">
         <div id="nested-viewer">
-            <div id="carouselControls" class="carousel slide" style="height: 100%">
+            <div id="carouselControls" class="carousel slide" style="height: 100%" data-ride="carousel">
                 <ol class="carousel-indicators" id="carousel-indicators">
 
                 </ol>

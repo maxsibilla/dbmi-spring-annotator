@@ -13,9 +13,7 @@ import org.apache.http.util.EntityUtils;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 
 public class BioontologyRequests {
@@ -23,17 +21,35 @@ public class BioontologyRequests {
     private static List<String> grandParentVocab = new ArrayList<String>();
 
 
-//    public static void main(String[] args) {
-//        String searchterm = "genetics";
-//        String result = ontologyRequest(searchterm, "MESH", null);
-//        parseGetRequest(result);
+    public static void main(String[] args) {
+        //This removes unnecessary logging information
+//        Set<String> artifactoryLoggers = new HashSet<>(Arrays.asList("org.apache.http", "groovyx.net.http"));
+//        for (String log : artifactoryLoggers) {
+//            ch.qos.logback.classic.Logger artLogger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(log);
+//            artLogger.setLevel(ch.qos.logback.classic.Level.INFO);
+//            artLogger.setAdditive(false);
+//        }
 //
-//        result = ontologyRequest(searchterm, "NCIT", null);
-//        parseGetRequest(result);
+//        String[] searchTerms = {"base",
+//                "amino acid",
+//                "code",
+//        };
+//        for (String searchterm : searchTerms) {
+//            String result = ontologyRequest(searchterm, "MESH", null);
+//            parseGetRequest(result);
 //
-//        System.out.println(Arrays.toString(parentVocab.toArray()));
-//        System.out.println(Arrays.toString(grandParentVocab.toArray()));
-//    }
+//            result = ontologyRequest(searchterm, "NCIT", null);
+//            parseGetRequest(result);
+//
+//            System.out.println(searchterm);
+//            System.out.println(Arrays.toString(parentVocab.toArray()));
+//            System.out.println(Arrays.toString(grandParentVocab.toArray()));
+//
+//            parentVocab.clear();
+//            grandParentVocab.clear();
+//        }
+
+    }
 
     private static final String apiKey = "f060b29e-fc9a-4dcd-b3be-9741466dbc4a";
     private static final CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -46,7 +62,7 @@ public class BioontologyRequests {
             request = new HttpGet(url + "?apikey=" + apiKey);
         } else {
             try {
-                request = new HttpGet("http://data.bioontology.org/search?q=" +  URLEncoder.encode(searchTerm, String.valueOf(StandardCharsets.UTF_8)) + "&ontologies=" + ontology + "&apikey=" + apiKey);
+                request = new HttpGet("http://data.bioontology.org/search?q=" + URLEncoder.encode(searchTerm, String.valueOf(StandardCharsets.UTF_8)) + "&ontologies=" + ontology + "&apikey=" + apiKey);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
                 return null;
@@ -54,10 +70,6 @@ public class BioontologyRequests {
         }
 
         try (CloseableHttpResponse response = httpClient.execute(request)) {
-
-            // Get HttpResponse Status
-            System.out.println(response.getStatusLine().toString());
-
             HttpEntity entity = response.getEntity();
 
             if (entity != null) {
@@ -74,22 +86,27 @@ public class BioontologyRequests {
 
     public static void parseGetRequest(String jsonString) {
         JsonObject jsonObject = new JsonParser().parse(jsonString).getAsJsonObject();
-        JsonObject links = jsonObject.get("collection").getAsJsonArray().get(0).getAsJsonObject().get("links").getAsJsonObject();
-        String parentLink = links.get("ancestors").getAsString();
-
         try {
-            JsonObject parentJsonObject = new JsonParser().parse(ontologyRequest(null, null, parentLink)).getAsJsonArray().get(0).getAsJsonObject();
-            parentVocab.add("(" + parentJsonObject.get("prefLabel").getAsString() + ")");
-            links = parentJsonObject.getAsJsonObject().get("links").getAsJsonObject();
-            String grandParentLink = links.get("ancestors").getAsString();
+            JsonObject links = jsonObject.get("collection").getAsJsonArray().get(0).getAsJsonObject().get("links").getAsJsonObject();
+            String parentLink = links.get("ancestors").getAsString();
+
 
             try {
-                JsonObject grandParentJsonObject = new JsonParser().parse(ontologyRequest(null, null, grandParentLink)).getAsJsonArray().get(0).getAsJsonObject();
-                grandParentVocab.add("(" + grandParentJsonObject.get("prefLabel").getAsString() + ")" );
-            } catch (IndexOutOfBoundsException e) {
-                grandParentVocab.add(null);
+                JsonObject parentJsonObject = new JsonParser().parse(ontologyRequest(null, null, parentLink)).getAsJsonArray().get(0).getAsJsonObject();
+                parentVocab.add("(" + parentJsonObject.get("prefLabel").getAsString() + ")");
+                links = parentJsonObject.getAsJsonObject().get("links").getAsJsonObject();
+                String grandParentLink = links.get("ancestors").getAsString();
+
+                try {
+                    JsonObject grandParentJsonObject = new JsonParser().parse(ontologyRequest(null, null, grandParentLink)).getAsJsonArray().get(0).getAsJsonObject();
+                    grandParentVocab.add("(" + grandParentJsonObject.get("prefLabel").getAsString() + ")");
+                } catch (IndexOutOfBoundsException e) {
+                    grandParentVocab.add(null);
+                }
+            } catch (IndexOutOfBoundsException ex) {
+                parentVocab.add(null);
             }
-        } catch (IndexOutOfBoundsException ex) {
+        } catch (IndexOutOfBoundsException exe) {
             parentVocab.add(null);
         }
     }

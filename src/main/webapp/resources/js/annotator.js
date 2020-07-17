@@ -1265,18 +1265,20 @@
 
                 if (figures) {
                     for (var i = 0; i < figures.length; i++) {
-                        var carouselItem = document.createElement("div");
-                        carouselItem.classList.add('carousel-item');
-                        var figure = document.createElement('img');
-                        figure.src = figures[i];
-                        figure.classList.add('d-block');
-                        carouselItem.appendChild(figure);
-                        $('#annotation-figure').append(carouselItem);
+                        if (figures[i] != "" && figures[i] != null) {
+                            var carouselItem = document.createElement("div");
+                            carouselItem.classList.add('carousel-item');
+                            var figure = document.createElement('img');
+                            figure.src = figures[i];
+                            figure.classList.add('d-block');
+                            carouselItem.appendChild(figure);
+                            $('#annotation-figure').append(carouselItem);
 
-                        var indicatorItem = document.createElement("li");
-                        indicatorItem.setAttribute('data-target', '#carouselControls');
-                        indicatorItem.setAttribute('data-slide-to', i + 1);
-                        $('#carousel-indicators').append(indicatorItem);
+                            var indicatorItem = document.createElement("li");
+                            indicatorItem.setAttribute('data-target', '#carouselControls');
+                            indicatorItem.setAttribute('data-slide-to', i + 1);
+                            $('#carousel-indicators').append(indicatorItem);
+                        }
                     }
                 }
             } catch (e) {
@@ -3119,11 +3121,15 @@ function validUrl(url) {
 
 function resourceExists(resource_name) {
 
-    var http = new XMLHttpRequest();
+    try {
+        var http = new XMLHttpRequest();
 
-    http.open('HEAD', resource_name, false);
-    http.send();
+        http.open('HEAD', resource_name, false);
+        http.send();
 
-    return http.status != 404;
+        return http.status != 404;
+    } catch (e) {
+        return false;
+    }
 
 }
