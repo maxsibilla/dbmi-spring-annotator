@@ -11,7 +11,9 @@
 <myTags:navbar></myTags:navbar>
 <main role="main" class="container">
     <div class="navbar-body">
-        <h2>Welcome ${pageContext.request.userPrincipal.name}</h2>
+        <h3>
+            Please visit this <a href="">link</a> to be instructed on how the following tool functions.
+        </h3>
         <c:forEach items="${userFileInfoList}" var="userFileInfo" varStatus="status">
             <div class="card">
                 <div class="card-header">
@@ -61,6 +63,10 @@
             </div>
             <br>
         </c:forEach>
+
+        <p>
+            Once you have completed all of the tasks please fill out this <a href="https://pitt.co1.qualtrics.com/jfe/form/SV_ba0KkRh3CfAao29">System Usability Scale questionnaire</a>.
+        </p>
     </div>
 
     <script>
