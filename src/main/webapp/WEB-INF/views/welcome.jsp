@@ -12,7 +12,7 @@
 <main role="main" class="container">
     <div class="navbar-body">
         <h3>
-            Please visit this <a href="">link</a> to be instructed on how the following tool functions.
+            Please visit these links (<a href="view?uri=Ribosome&showAnnotator=true">Ribosome</a>, <a href="view?uri=RNAVideo&showAnnotator=true">RNA Video</a>) to be instructed on how the following tool functions.
         </h3>
         <c:forEach items="${userFileInfoList}" var="userFileInfo" varStatus="status">
             <div class="card">
