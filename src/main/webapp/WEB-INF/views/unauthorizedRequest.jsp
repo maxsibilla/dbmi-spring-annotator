@@ -7,7 +7,7 @@
 
 <html>
 
-<myTags:imports title="Unsupported Request"/>
+<myTags:imports title="Unauthorized Request"/>
 
 <body>
 <myTags:navbar></myTags:navbar>
@@ -15,7 +15,7 @@
     <div class="navbar-body">
         <div class="row">
 
-            <h3 class="text-center">Status 400: The request is not currently supported.</h3>
+            <h3 class="text-center">Status 401: You do not currently have the authorization to view this.</h3>
 
         </div>
     </div>

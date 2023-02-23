@@ -2,7 +2,7 @@
 <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
 
 <nav class="navbar navbar-expand-md navbar-light bg-light fixed-top">
-    <a class="navbar-brand" href="#">Spring Annotator</a>
+    <a class="navbar-brand" href="${contextPath}">Spring Annotator</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbars"
             aria-controls="navbars" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -10,15 +10,13 @@
 
     <div class="collapse navbar-collapse" id="navbars">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="${contextPath}/view?uri=Phenotype&showAnnotator=true">Phenotype <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="${contextPath}/view?uri=PhenotypeVideo&showAnnotator=true">Phenotype Video</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="${contextPath}/view?uri=Fibrodysplasia&showAnnotator=true">Fibrodysplasia</a>
-            </li>
+            <c:if test="${isEditor eq true}">
+                <li class="nav-item">
+                    <a class="nav-link" href="${contextPath}/analytics">Analytics <span
+                            class="sr-only">(current)</span></a>
+                </li>
+            </c:if>
+
         </ul>
         <c:choose>
             <c:when test="${pageContext.request.userPrincipal.name != null}">

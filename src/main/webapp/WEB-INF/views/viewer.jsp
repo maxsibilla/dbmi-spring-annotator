@@ -11,6 +11,10 @@
 <link href="${contextPath}/resources/css/auth.css" rel="stylesheet">
 <link href="${contextPath}/resources/css/jqx.base.css" rel="stylesheet">
 <link href="${contextPath}/resources/css/tags-annotator.css" rel="stylesheet">
+<link href="${contextPath}/resources/css/select2.min.css" type="text/css" rel="stylesheet">
+<link href="${contextPath}/resources/css/select2-bootstrap.min.css" type="text/css" rel="stylesheet">
+<link href="${contextPath}/resources/css/select2.optgroupSelect.css" type="text/css" rel="stylesheet">
+
 <script src="${contextPath}/resources/js/splitter/jqxcore.js"></script>
 <script src="${contextPath}/resources/js/splitter/jqxbuttons.js"></script>
 <script src="${contextPath}/resources/js/splitter/jqxsplitter.js"></script>
@@ -18,6 +22,8 @@
 <script src="${contextPath}/resources/js/splitter/jqxscrollbar.js"></script>
 <script src="${contextPath}/resources/js/searchhighlight.js"></script>
 <script src="${contextPath}/resources/js/tags-annotator.js"></script>
+<script src="${contextPath}/resources/js/select2.min.js"></script>
+<script src="${contextPath}/resources/js/select2.optgroupSelect.js"></script>
 <body>
 <%--<myTags:navbar></myTags:navbar>--%>
 <div id="main-splitter" class="main-splitter">
@@ -28,7 +34,8 @@
 
         <c:if test="${contentIsVideo}">
             <%--            to set start and end time--%>
-            <video controls src="/annotator-file-dir/videos/${fileContents}#t=11,189" class="video-player"
+            <video controls src="/annotator-file-dir/videos/${fileContents}#t=${startTime},${endTime}"
+                   class="video-player"
                    id="main-video">
                     <%--            <video controls src="/annotator-file-dir/videos/${fileContents}" class="video-player" id="main-video">--%>
                 <track default src="/annotator-file-dir/videos/${subtitles}" label="English subtitles" kind="subtitles"
@@ -43,24 +50,14 @@
 
     </div>
     <div id="new-annotator-viewer">
-        <div id="annotation-definition">
-
-        </div>
         <div id="nested-viewer">
-            <div id="carouselControls" class="carousel slide" data-ride="carousel">
-                <div class="carousel-inner" id="annotation-figure">
+            <div id="carouselControls" class="carousel slide" style="height: 100%" data-ride="carousel">
+                <ol class="carousel-indicators" id="carousel-indicators">
+
+                </ol>
+                <div class="carousel-inner" id="annotation-figure" style="height: 100%">
 
                 </div>
-                <a class="carousel-control-prev" href="#carouselControls" role="button"
-                   data-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Previous</span>
-                </a>
-                <a class="carousel-control-next" href="#carouselControls" role="button"
-                   data-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Next</span>
-                </a>
             </div>
 
             <div id="annotation-video">
@@ -72,9 +69,11 @@
 
 <div class="col-md-4">
     <div class="legend-large d-none d-sm-block">
-        <button id="show-legend" class="btn btn-secondary btn-xs" onclick="toggleLegend('show')">Show Legend</button>
+        <button class="btn btn-secondary btn-xs" id="complete">Complete</button>
+        <br>
+        <button id="show-legend" class="btn btn-secondary btn-xs" onclick="toggleLegend('show')">Show Toolbox</button>
         <div id="main-legend" class="legend display-none">
-            <button id="legend-button" class="btn btn-outline-dark btn-xs" onclick="toggleLegend('hide')">Hide</button>
+            <button id="legend-button" class="btn btn-secondary btn-xs" onclick="toggleLegend('hide')">Hide</button>
             <myTags:legendTable/>
         </div>
     </div>
@@ -82,7 +81,13 @@
 
 <script>
     var annotator;
+    var currentTimeStamp;
+    var wordDifficultyFilter = ['moderate', 'hard'];
+    var englishPhraseFilter = 'visible';
+    var sciencePhraseFilter = 'visible';
+
     $(document).ready(function () {
+        currentTimeStamp = new Date().toLocaleString();
         var uri = getUrlParameter('uri', document.location.href);
         if (uri == null || uri == undefined) {
             uri = 'default';
@@ -103,6 +108,57 @@
         });
         </c:if>
 
+        // to add pre annotations
+        <c:if test="${addPreAnnotation}">
+        <c:forEach items="${phrases}" var="entry">
+        createDynamicPreAnnotation("${entry.key}", "${entry.value}", uri);
+        </c:forEach>
+        </c:if>
+
+        //to add annotations
+        <c:if test="${addAnnotation}">
+        <c:forEach items="${annotations}" var="annotation">
+        createDynamicAnnotation("${annotation.quote}", "${annotation.parentConcept}", "${annotation.text}", "${annotation.video}", "${annotation.figure}", "${annotation.wordDifficulty}", uri);
+        </c:forEach>
+        </c:if>
+
+        var video = document.getElementById('main-video');
+        var startTime;
+        var endTime;
+        <c:choose>
+        <c:when test="${not empty startTime}">
+        startTime = ${startTime};
+        </c:when>
+        <c:otherwise>
+        startTime = 0;
+        </c:otherwise>
+        </c:choose>
+
+        <c:choose>
+        <c:when test="${not empty endTime}">
+        endTime = ${endTime};
+        </c:when>
+        <c:otherwise>
+        endTime = 0;
+        </c:otherwise>
+        </c:choose>
+
+        if ($("#main-video").length) {
+
+            video.addEventListener('timeupdate', function () {
+                if (!video.seeking) {
+                    supposedCurrentTime = video.currentTime;
+                }
+            });
+            // prevent user from seeking
+            video.addEventListener('seeking', function () {
+                if (video.currentTime > endTime || video.currentTime < startTime) {
+                    console.log("Seeking is disabled");
+                    video.currentTime = supposedCurrentTime;
+                }
+            });
+        }
+
 
         $('#content').jqxPanel({width: '100%', height: '100%'});
         $('#main-splitter').jqxSplitter({
@@ -112,15 +168,6 @@
             panels: [{size: '66%', collapsible: false}, {size: '34%', collapsible: true}]
         });
         $('#main-splitter').jqxSplitter('collapse');
-
-
-        // testing
-        <c:if test="${addPreAnnotation}">
-        <c:forEach items="${phrases}" var="entry">
-        createDynamicAnnotation("${entry.key}", "${entry.value}", uri);
-        </c:forEach>
-        </c:if>
-
     });
 
     function createAnnotator(uri) {
@@ -156,7 +203,65 @@
         }).annotator('addPlugin', 'HighlightTags', optiontags);
     }
 
-    function createDynamicAnnotation(searchWord, definition, uri) {
+    function createDynamicAnnotation(word, parentConcept, definition, video, figure, difficulty, uri) {
+        console.log("Adding annotation for: " + word);
+        var allElements = Array.from(document.querySelectorAll('.highlighted'))
+        allElements.forEach(function (element) {
+            element.classList.remove('highlighted')
+        });
+        highlightSearchTerms(word, true);
+
+        for (var i = 0; i < document.getElementsByClassName('highlighted').length; i++) {
+            (function (i) {
+                var element = document.getElementsByClassName('highlighted')[i];
+
+                var rootXPath = getXpathOfNode(document.getElementsByClassName('annotator-wrapper')[0]);
+                var xPath = getXpathOfNode(element);
+                xPath = xPath.replace(rootXPath, '').replace('/FONT', '').toLowerCase();
+                xPath = xPath.replace('tbody', 'tbody[1]').replace('td', 'td[1]');
+                xPath = xPath.replace(/td\[.*?\]\[/g, 'td[');
+                xPath = xPath.replace(/]\[.*?\]/g, ']')
+
+                var parentElement = element.parentElement;
+                var startOffset = parentElement.textContent.indexOf(word);
+                var endOffset = startOffset + word.length;
+
+                var annotation = {};
+                var range = {};
+
+                annotation.quote = word;
+                annotation.parentConcept = parentConcept;
+                annotation.text = definition;
+                annotation.uri = uri;
+                annotation.wordType = "${preAnnotationType}";
+                annotation.video = video;
+                annotation.figure = figure;
+                range.start = xPath;
+                range.end = xPath;
+                range.startOffset = startOffset;
+                range.endOffset = endOffset;
+                annotation.range = range;
+
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json",
+                    url: "${contextPath}/annotation/newAnnotation",
+                    data: JSON.stringify(annotation),
+                    dataType: 'json',
+                    timeout: 600000,
+                    success: function (data) {
+
+                    },
+                    error: function (e) {
+
+                    }
+                });
+            })(i);
+        }
+    }
+
+
+    function createDynamicPreAnnotation(searchWord, definition, uri) {
         // clear previous search
         console.log("Searching for..." + searchWord);
         var allElements = Array.from(document.querySelectorAll('.highlighted'))
@@ -218,6 +323,18 @@
         var results = regex.exec(url);
         return results == null ? null : results[1];
     }
+
+    document.getElementById('complete').addEventListener('click', function () {
+        var c = confirm('Are you sure you are finished viewing this page?');
+        if (c == true) {
+            var uri = getUrlParameter('uri', document.location.href);
+            $.post("complete", {
+                uri: uri,
+            }, function (data) {
+                window.location.href = "${contextPath}";
+            });
+        }
+    });
 </script>
 </body>
 </html>

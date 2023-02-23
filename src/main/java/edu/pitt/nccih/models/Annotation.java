@@ -20,6 +20,8 @@ public class Annotation {
 
     private String wordDifficulty;
 
+    private String  parentConcept;
+
     @Column(length = 200000)
     private String text;
 
@@ -88,6 +90,14 @@ public class Annotation {
 
     public void setWordDifficulty(String wordDifficulty) {
         this.wordDifficulty = wordDifficulty;
+    }
+
+    public String getParentConcept() {
+        return parentConcept;
+    }
+
+    public void setParentConcept(String parentConcept) {
+        this.parentConcept = parentConcept;
     }
 
     public String getText() {

@@ -1,5 +1,5 @@
 *.db
-*.properties
+application.properties
 target
 *.iml
 .DS_Store

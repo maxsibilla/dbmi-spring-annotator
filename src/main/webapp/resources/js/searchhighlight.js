@@ -13,24 +13,25 @@ function doHighlight(bodyText, searchTerm, highlightStartTag, highlightEndTag) {
     var newText = "";
     var i = -1;
     var lcSearchTerm = searchTerm.toLowerCase();
+    lcSearchTerm = new RegExp('\\b' + lcSearchTerm + '\\b');
     var lcBodyText = bodyText.toLowerCase();
 
     while (bodyText.length > 0) {
-        i = lcBodyText.indexOf(lcSearchTerm, i + 1);
+        i = lcBodyText.search(lcSearchTerm);
         if (i < 0) {
             newText += bodyText;
             bodyText = "";
         } else {
             // skip anything inside an HTML tag
-            if (bodyText.lastIndexOf(">", i) >= bodyText.lastIndexOf("<", i)) {
+            // if (bodyText.lastIndexOf(">", i) >= bodyText.lastIndexOf("<", i)) {
                 // skip anything inside a <script> block
-                if (lcBodyText.lastIndexOf("/script>", i) >= lcBodyText.lastIndexOf("<script", i)) {
+                // if (lcBodyText.lastIndexOf("/script>", i) >= lcBodyText.lastIndexOf("<script", i)) {
                     newText += bodyText.substring(0, i) + highlightStartTag + bodyText.substr(i, searchTerm.length) + highlightEndTag;
                     bodyText = bodyText.substr(i + searchTerm.length);
                     lcBodyText = bodyText.toLowerCase();
                     i = -1;
-                }
-            }
+                // }
+            // }
         }
     }
 

@@ -3,6 +3,7 @@ package edu.pitt.nccih.auth.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Set;
 
 @Entity
@@ -23,6 +24,12 @@ public class User {
 
     @ManyToMany(fetch=FetchType.EAGER)
     private Set<Role> roles;
+
+//    @Column
+//    @ElementCollection (targetClass = String.class)
+    private ArrayList<String> uncompletedFiles;
+
+    private String nextFileToComplete;
 
 
     public Long getId() {
@@ -72,5 +79,21 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public ArrayList<String> getUncompletedFiles() {
+        return uncompletedFiles;
+    }
+
+    public void setUncompletedFiles(ArrayList<String> uncompletedFiles) {
+        this.uncompletedFiles = uncompletedFiles;
+    }
+
+    public String getNextFileToComplete() {
+        return nextFileToComplete;
+    }
+
+    public void setNextFileToComplete(String nextFileToComplete) {
+        this.nextFileToComplete = nextFileToComplete;
     }
 }

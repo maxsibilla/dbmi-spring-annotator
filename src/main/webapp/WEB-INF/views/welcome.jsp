@@ -11,7 +11,9 @@
 <myTags:navbar></myTags:navbar>
 <main role="main" class="container">
     <div class="navbar-body">
-        <h2>Welcome ${pageContext.request.userPrincipal.name}</h2>
+        <h3>
+            Please visit these links (<a href="view?uri=Ribosome&showAnnotator=true">Ribosome</a>, <a href="view?uri=RNAVideo&showAnnotator=true">RNA Video</a>) to be instructed on how the following tool functions.
+        </h3>
         <c:forEach items="${userFileInfoList}" var="userFileInfo" varStatus="status">
             <div class="card">
                 <div class="card-header">
@@ -25,13 +27,58 @@
                         <c:param name="showAnnotator" value="${hasAssistance}"/>
                     </c:url>
 
-                        <%--                    <h5 class="card-title">Special title treatment</h5>--%>
-                        <%--                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>--%>
-                    <a href="${url}" class="btn btn-primary">View</a>
+                    <c:set var="preTest" value="preTest${userFileInfo.filename}"/>
+                    <c:set var="postTest" value="postTest${userFileInfo.filename}"/>
+
+                    <h5 class="card-title">${userFileInfo.publicFilename}</h5>
+
+                    <button value="${userFileInfo.preTest}" id="${preTest}" onclick="markComplete(this.value, this.id)"
+                            class="btn btn-primary
+                        <c:forEach items="${uncompletedFiles}" var="file" varStatus="status">
+                            <c:if test="${file eq preTest}">
+                                disabled btn-secondary
+                            </c:if>
+                        </c:forEach>
+                     ">Pre-Test
+                    </button>
+
+                    <a href="${url}" class="btn btn-primary
+                        <c:forEach items="${uncompletedFiles}" var="file" varStatus="status">
+                            <c:if test="${file eq userFileInfo.filename}">
+                                disabled btn-secondary
+                            </c:if>
+                        </c:forEach>
+                     ">View</a>
+
+                    <button value="${userFileInfo.postTest}" id="${postTest}"
+                            onclick="markComplete(this.value, this.id)" class="btn btn-primary
+                        <c:forEach items="${uncompletedFiles}" var="file" varStatus="status">
+                            <c:if test="${file eq postTest}">
+                                disabled btn-secondary
+                            </c:if>
+                        </c:forEach>
+                     ">Post-Test
+                    </button>
                 </div>
             </div>
+            <br>
         </c:forEach>
+
+        <p>
+            Once you have completed all of the tasks please fill out this <a href="https://pitt.co1.qualtrics.com/jfe/form/SV_ba0KkRh3CfAao29">System Usability Scale questionnaire</a>.
+        </p>
     </div>
+
+    <script>
+        function markComplete(testUrl, uri) {
+            $.post("complete", {
+                uri: uri,
+            }, function () {
+                window.open(testUrl, "_blank");
+                location.reload();
+            });
+        }
+    </script>
 </main>
 </body>
 </html>

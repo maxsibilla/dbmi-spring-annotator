@@ -6,21 +6,23 @@ body {
     padding-top: 4rem;
 }
 
-.figure-img {
-    max-height: 100%;
-    max-width: 100%;
-    width: auto;
-    height: auto;
-    position: absolute;
-    /*top: 0;*/
-    /*bottom: 0;*/
-    left: 0;
-    right: 0;
-    margin: auto;
+.carousel .carousel-indicators li {
+  background-color: #fff;
+  background-color: rgba(70, 70, 70, 0.25);
+}
+
+.carousel .carousel-indicators .active {
+  background-color: #444;
+}
+
+.carousel-inner > .carousel-item {
+    padding: 1em;
+    height: 100%;
 }
 
 .carousel-inner > .carousel-item > img {
-    margin: 0 auto;
+    margin: auto;
+    max-height: 100%;
 }
 
 .carousel-control-next {
@@ -51,16 +53,16 @@ body {
     text-align: center;
 }
 
-video::cue {
+#main-video::cue {
     opacity: 0;
     background-color: transparent;
     font-size: 0px !important;
 }
 
 /*move the subtitles out of frame*/
-video::-webkit-media-text-track-container {
- overflow: visible !important;
- transform: translateY(100%) !important;
+#main-video::-webkit-media-text-track-container {
+    overflow: visible !important;
+    transform: translateY(100%) !important;
 }
 
 .legend-large {
@@ -94,6 +96,13 @@ video::-webkit-media-text-track-container {
 
 .btn-xs {
     padding: .25rem .4rem;
+    /*font-size: .875rem;*/
+    line-height: .5;
+    border-radius: .2rem;
+}
+
+.btn-xxs {
+    padding: .25rem .4rem;
     font-size: .875rem;
     line-height: .5;
     border-radius: .2rem;
@@ -108,4 +117,42 @@ video::-webkit-media-text-track-container {
     height: 15px;
     background-color: #ccc;
     border: 1px solid #000;
+}
+
+.iframe-video {
+    width: 100%;
+    height: 100%;
+}
+
+.annotation-video {
+    max-height: 100%;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    position: absolute;
+    /*top: 0;*/
+    /*bottom: 0;*/
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+
+video::-webkit-media-controls-fullscreen-button {
+    display: none;
+}
+
+#annotation-video {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+#carouselControls {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+#annotation-definition {
+    margin: 10px;
 }
